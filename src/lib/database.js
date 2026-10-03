@@ -1,0 +1,48 @@
+import mongoose from "mongoose";
+
+const MONGO_URL = process.env.MONGO_URL;
+
+
+let cached = global.mongoose;
+
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
+
+export async function connectDatabase() {
+  if (!MONGO_URL) {
+    console.log("Skipping mongo connection.");
+    return null;
+  }
+
+  // Prevent reconnecting to mongoose on every request
+  if (cached.conn) {
+    return cached.conn;
+  }
+
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(MONGO_URL, {
+      // Prevent queries from hanging when mongodb isn't connected
+      bufferCommands: false,
+    });
+  }
+
+  try {
+    console.log("Establishing connection to database");
+    cached.conn = await cached.promise;
+    console.log("Successfully connected to database");
+    return cached.conn;
+  } catch (err) {
+    cached = global.mongoose = { conn: null, promise: null };
+    console.error("Failed to connect to database");
+    throw err;
+  }
+}
+
+// Wrap API handlers that use the database in this to ensure database is connected
+export function withDatabase(handler) {
+  return async (req, res) => {
+    await connectDatabase();
+    return handler(req, res);
+  };
+}
