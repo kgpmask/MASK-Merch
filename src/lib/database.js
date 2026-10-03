@@ -10,9 +10,12 @@ if (!cached) {
 }
 
 export async function connectDatabase() {
+  // if (!MONGO_URL) {
+  //   console.log("Skipping mongo connection.");
+  //   return null;
+  // }
   if (!MONGO_URL) {
-    console.log("Skipping mongo connection.");
-    return null;
+    throw new Error('MONGO_URL is not defined in environment variables.');
   }
 
   // Prevent reconnecting to mongoose on every request

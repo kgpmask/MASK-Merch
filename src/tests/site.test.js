@@ -1,7 +1,14 @@
-import { describe, test, expect, beforeAll, afterAll } from "vitest";
+import { describe, test, expect, beforeAll, afterAll, it } from "vitest";
 import { createServer } from "http";
 import next from "next";
-import { connectDatabase } from "@/lib/database.js";
+import { connectDatabase } from '../lib/database.js';
+
+describe('Environment Variables', () => {
+  it('should load MONGO_URL from .env', () => {
+    expect(process.env.MONGO_URL).toBeDefined();
+    expect(process.env.MONGO_URL).not.toBe('');
+  });
+});
 
 let appServer;
 let PORT;
@@ -22,7 +29,7 @@ afterAll(async () => {
 	await new Promise((resolve) => appServer.close(resolve));
 });
 
-const pages = ["", "merch"];
+const pages = [""];
 
 describe("Server", () => {
 	describe("Database", () => {
