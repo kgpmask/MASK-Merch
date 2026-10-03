@@ -3,6 +3,15 @@ import reactHooks from "eslint-plugin-react-hooks";
 
 export default [
   {
+    ignores: [
+      ".next/**",
+      "node_modules/**",
+      "out/**",
+      "build/**",
+      "dist/**",
+    ],
+  },
+  {
     files: ["**/*.{js,jsx}"],
     plugins: {
       react,
