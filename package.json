@@ -10,6 +10,7 @@
 		"prettier": "prettier . --write",
 		"lint:fix": "eslint . --fix",
 		"test": "vitest run",
+		"test:routes": "tsx scripts/verify-routes.ts",
 		"test:watch": "vitest",
 		"typecheck": "tsc --noEmit",
 		"seed": "tsx scripts/seed.ts",
