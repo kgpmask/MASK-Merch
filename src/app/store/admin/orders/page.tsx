@@ -6,4 +6,188 @@ import StatusBadge from "@/components/store/StatusBadge";
 import pageStyles from "@/styles/StorePage.module.css";
 import styles from "@/styles/Admin.module.css";
 import type { OrderStatus } from "@/types/store";
-export default async function AdminOrdersPage({ searchParams }: { searchParams: Promise<{ q?: string; status?: string }> }): Promise<React.ReactElement> { const { q = "", status = "" } = await searchParams; await connectDatabase(); const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); const filter: Record<string, unknown> = {}; if (safe) filter.$or = [{ orderNumber: { $regex: safe, $options: "i" } }, { "user.name": { $regex: safe, $options: "i" } }, { "user.email": { $regex: safe, $options: "i" } }]; if (status) filter.status = status; const orders = await Order.find(filter).sort({ createdAt: -1 }).limit(200).lean(); const payments = await Payment.find({ orderId: { $in: orders.map((item) => item._id) } }).lean(); const statuses: OrderStatus[] = ["payment_pending", "payment_submitted", "payment_rejected", "paid_waiting_moq", "confirmed", "ready_for_pickup", "collected", "refund_pending", "refunded"]; return <div className={pageStyles.page}><header className={pageStyles.header}><p className={pageStyles.kicker}>Verification, refunds and pickup</p><h1>Orders</h1><p>Search by name, email or order number. Proof is supporting evidence only; verify against the authorised account.</p></header><form className={styles.search}><input name="q" defaultValue={q} placeholder="Name, email or MASK-1042" /><select name="status" defaultValue={status}><option value="">All statuses</option>{statuses.map((item) => <option value={item} key={item}>{item}</option>)}</select><button>Search</button><a className={styles.download} href="/api/store/admin/export/pickup">Pickup CSV</a></form><div className={styles.tableWrap}><table className={styles.table}><thead><tr><th>Order / student</th><th>Payment evidence</th><th>Amount</th><th>Status</th><th>Admin action</th></tr></thead><tbody>{orders.map((order) => { const payment = payments.find((item) => item.orderId.toString() === order._id.toString()); return <tr key={order.orderNumber}><td><strong>{order.orderNumber}</strong><br />{order.user.name}<br />{order.user.email}</td><td>UTR: {payment?.utr ?? "—"}<br />Payer: {payment?.payerName ?? "—"}<br />Time: {payment?.transactionAt?.toLocaleString("en-IN") ?? "—"}<br />{payment?.proofKey && <a href={`/api/store/payment-proof/${order.orderNumber}`} target="_blank">Private proof ↗</a>}</td><td>{formatMoney(order.totalPaise)}</td><td><StatusBadge status={order.status} /></td><td><div className={styles.actions}>{order.status === "payment_submitted" && <><AdminAction endpoint={`/api/store/admin/orders/${order.orderNumber}`} action="verify" label="Mark paid" confirmText="Have you matched UTR, amount, payer and time against actual bank/UPI history?" /><AdminAction endpoint={`/api/store/admin/orders/${order.orderNumber}`} action="reject" label="Reject payment" fields={[{ name: "reason", label: "Reason", required: true }]} /></>}{order.status === "refund_pending" && <AdminAction endpoint={`/api/store/admin/orders/${order.orderNumber}`} action="refund" label="Record refund" fields={[{ name: "refundUtr", label: "Refund UTR", required: true }, { name: "amountPaise", label: "Amount ₹", type: "number", required: true, value: String(order.totalPaise / 100) }, { name: "refundedAt", label: "Sent at", type: "datetime-local", required: true }]} confirmText="Only continue after the authorised account holder has sent this refund." />}{order.status === "confirmed" && <AdminAction endpoint={`/api/store/admin/orders/${order.orderNumber}`} action="ready" label="Mark ready" />}{order.status === "ready_for_pickup" && <AdminAction endpoint={`/api/store/admin/orders/${order.orderNumber}`} action="collected" label="Mark collected" confirmText="Confirm the student has collected this order at Gymkhana." />}</div></td></tr>; })}</tbody></table></div></div>; }
+export default async function AdminOrdersPage({
+	searchParams
+}: {
+	searchParams: Promise<{ q?: string; status?: string }>;
+}): Promise<React.ReactElement> {
+	const { q = "", status = "" } = await searchParams;
+	await connectDatabase();
+	const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	const filter: Record<string, unknown> = {};
+	if (safe)
+		filter.$or = [
+			{ orderNumber: { $regex: safe, $options: "i" } },
+			{ "user.name": { $regex: safe, $options: "i" } },
+			{ "user.email": { $regex: safe, $options: "i" } }
+		];
+	if (status) filter.status = status;
+	const orders = await Order.find(filter)
+		.sort({ createdAt: -1 })
+		.limit(200)
+		.lean();
+	const payments = await Payment.find({
+		orderId: { $in: orders.map((item) => item._id) }
+	}).lean();
+	const statuses: OrderStatus[] = [
+		"payment_pending",
+		"payment_submitted",
+		"payment_rejected",
+		"paid_waiting_moq",
+		"confirmed",
+		"ready_for_pickup",
+		"collected",
+		"refund_pending",
+		"refunded"
+	];
+	return (
+		<div className={pageStyles.page}>
+			<header className={pageStyles.header}>
+				<p className={pageStyles.kicker}>Verification, refunds and pickup</p>
+				<h1>Orders</h1>
+				<p>
+					Search by name, email or order number. Proof is supporting evidence only;
+					verify against the authorised account.
+				</p>
+			</header>
+			<form className={styles.search}>
+				<input
+					name="q"
+					defaultValue={q}
+					placeholder="Name, email or MASK-1042"
+				/>
+				<select
+					name="status"
+					defaultValue={status}
+				>
+					<option value="">All statuses</option>
+					{statuses.map((item) => (
+						<option
+							value={item}
+							key={item}
+						>
+							{item}
+						</option>
+					))}
+				</select>
+				<button>Search</button>
+				<a
+					className={styles.download}
+					href="/api/store/admin/export/pickup"
+				>
+					Pickup CSV
+				</a>
+			</form>
+			<div className={styles.tableWrap}>
+				<table className={styles.table}>
+					<thead>
+						<tr>
+							<th>Order / student</th>
+							<th>Payment evidence</th>
+							<th>Amount</th>
+							<th>Status</th>
+							<th>Admin action</th>
+						</tr>
+					</thead>
+					<tbody>
+						{orders.map((order) => {
+							const payment = payments.find(
+								(item) => item.orderId.toString() === order._id.toString()
+							);
+							return (
+								<tr key={order.orderNumber}>
+									<td>
+										<strong>{order.orderNumber}</strong>
+										<br />
+										{order.user.name}
+										<br />
+										{order.user.email}
+									</td>
+									<td>
+										UTR: {payment?.utr ?? "—"}
+										<br />
+										Payer: {payment?.payerName ?? "—"}
+										<br />
+										Time: {payment?.transactionAt?.toLocaleString("en-IN") ?? "—"}
+										<br />
+										{payment?.proofKey && (
+											<a
+												href={`/api/store/payment-proof/${order.orderNumber}`}
+												target="_blank"
+											>
+												Private proof ↗
+											</a>
+										)}
+									</td>
+									<td>{formatMoney(order.totalPaise)}</td>
+									<td>
+										<StatusBadge status={order.status} />
+									</td>
+									<td>
+										<div className={styles.actions}>
+											{order.status === "payment_submitted" && (
+												<>
+													<AdminAction
+														endpoint={`/api/store/admin/orders/${order.orderNumber}`}
+														action="verify"
+														label="Mark paid"
+														confirmText="Have you matched UTR, amount, payer and time against actual bank/UPI history?"
+													/>
+													<AdminAction
+														endpoint={`/api/store/admin/orders/${order.orderNumber}`}
+														action="reject"
+														label="Reject payment"
+														fields={[{ name: "reason", label: "Reason", required: true }]}
+													/>
+												</>
+											)}
+											{order.status === "refund_pending" && (
+												<AdminAction
+													endpoint={`/api/store/admin/orders/${order.orderNumber}`}
+													action="refund"
+													label="Record refund"
+													fields={[
+														{ name: "refundUtr", label: "Refund UTR", required: true },
+														{
+															name: "amountPaise",
+															label: "Amount ₹",
+															type: "number",
+															required: true,
+															value: String(order.totalPaise / 100)
+														},
+														{
+															name: "refundedAt",
+															label: "Sent at",
+															type: "datetime-local",
+															required: true
+														}
+													]}
+													confirmText="Only continue after the authorised account holder has sent this refund."
+												/>
+											)}
+											{order.status === "confirmed" && (
+												<AdminAction
+													endpoint={`/api/store/admin/orders/${order.orderNumber}`}
+													action="ready"
+													label="Mark ready"
+												/>
+											)}
+											{order.status === "ready_for_pickup" && (
+												<AdminAction
+													endpoint={`/api/store/admin/orders/${order.orderNumber}`}
+													action="collected"
+													label="Mark collected"
+													confirmText="Confirm the student has collected this order at Gymkhana."
+												/>
+											)}
+										</div>
+									</td>
+								</tr>
+							);
+						})}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	);
+}

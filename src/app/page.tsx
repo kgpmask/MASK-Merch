@@ -1,2 +1,4 @@
 import { redirect } from "next/navigation";
-export default function Home(): never { redirect("/store"); }
+export default function Home(): never {
+	redirect("/store");
+}

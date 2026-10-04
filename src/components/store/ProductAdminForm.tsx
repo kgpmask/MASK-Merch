@@ -2,4 +2,185 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import styles from "./ProductAdminForm.module.css";
-export default function ProductAdminForm(): React.ReactElement { const router = useRouter(); const [message, setMessage] = useState(""); async function submit(event: React.FormEvent<HTMLFormElement>): Promise<void> { event.preventDefault(); const form = new FormData(event.currentTarget); const sizes = String(form.get("sizes") ?? "S,M,L,XL").split(",").map((value) => value.trim()).filter(Boolean); const garmentTypes = form.getAll("garmentTypes"); const variants = garmentTypes.flatMap((garmentType) => sizes.map((size) => ({ garmentType, size, colour: form.get("colour"), pricePaise: Math.round(Number(form.get(`price-${garmentType}`)) * 100) }))); const payload = { title: form.get("title"), slug: form.get("slug"), artistCredit: form.get("artistCredit"), description: form.get("description"), images: String(form.get("images") ?? "").split(",").map((value) => value.trim()).filter(Boolean), moq: Number(form.get("moq")), preorderClose: form.get("preorderClose"), vendorNotes: form.get("vendorNotes"), variants }; const response = await fetch("/api/store/admin/products", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); const body = await response.json() as { error?: string }; setMessage(response.ok ? "Draft product created." : body.error ?? "Failed."); if (response.ok) { event.currentTarget.reset(); router.refresh(); } } return <form className={styles.form} onSubmit={submit}><div className={styles.grid}><label>Design title<input name="title" required /></label><label>URL slug<input name="slug" required pattern="[a-z0-9-]+" /></label><label>Artist credit<input name="artistCredit" required placeholder="Placeholder allowed" /></label><label>MOQ<input name="moq" type="number" min={1} defaultValue={5} required /></label><label>Preorder deadline<input name="preorderClose" type="datetime-local" required /></label><label>Colour<input name="colour" defaultValue="Black" required /></label><label>Sizes (comma-separated)<input name="sizes" defaultValue="S,M,L,XL" required /></label><label>Mockup image URLs (comma-separated)<input name="images" placeholder="Replaceable URLs" /></label></div><label>Description<textarea name="description" required /></label><label>Vendor notes<textarea name="vendorNotes" /></label><fieldset><legend>Variants and placeholder prices (₹)</legend><label><input type="checkbox" name="garmentTypes" value="normal_tshirt" defaultChecked /> Normal T-shirt <input name="price-normal_tshirt" type="number" min={0} defaultValue={599} /></label><label><input type="checkbox" name="garmentTypes" value="oversized_tshirt" defaultChecked /> Oversized <input name="price-oversized_tshirt" type="number" min={0} defaultValue={699} /></label><label><input type="checkbox" name="garmentTypes" value="hoodie" defaultChecked /> Hoodie <input name="price-hoodie" type="number" min={0} defaultValue={1199} /></label></fieldset><button>Create draft campaign</button>{message && <p>{message}</p>}</form>; }
+export default function ProductAdminForm(): React.ReactElement {
+	const router = useRouter();
+	const [message, setMessage] = useState("");
+	async function submit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
+		event.preventDefault();
+		const form = new FormData(event.currentTarget);
+		const sizes = String(form.get("sizes") ?? "S,M,L,XL")
+			.split(",")
+			.map((value) => value.trim())
+			.filter(Boolean);
+		const garmentTypes = form.getAll("garmentTypes");
+		const variants = garmentTypes.flatMap((garmentType) =>
+			sizes.map((size) => ({
+				garmentType,
+				size,
+				colour: form.get("colour"),
+				pricePaise: Math.round(Number(form.get(`price-${garmentType}`)) * 100)
+			}))
+		);
+		const payload = {
+			title: form.get("title"),
+			slug: form.get("slug"),
+			artistCredit: form.get("artistCredit"),
+			description: form.get("description"),
+			images: String(form.get("images") ?? "")
+				.split(",")
+				.map((value) => value.trim())
+				.filter(Boolean),
+			moq: Number(form.get("moq")),
+			preorderClose: form.get("preorderClose"),
+			vendorNotes: form.get("vendorNotes"),
+			variants
+		};
+		const response = await fetch("/api/store/admin/products", {
+			method: "POST",
+			headers: { "Content-Type": "application/json" },
+			body: JSON.stringify(payload)
+		});
+		const body = (await response.json()) as { error?: string };
+		setMessage(
+			response.ok ? "Draft product created." : (body.error ?? "Failed.")
+		);
+		if (response.ok) {
+			event.currentTarget.reset();
+			router.refresh();
+		}
+	}
+	return (
+		<form
+			className={styles.form}
+			onSubmit={submit}
+		>
+			<div className={styles.grid}>
+				<label>
+					Design title
+					<input
+						name="title"
+						required
+					/>
+				</label>
+				<label>
+					URL slug
+					<input
+						name="slug"
+						required
+						pattern="[a-z0-9-]+"
+					/>
+				</label>
+				<label>
+					Artist credit
+					<input
+						name="artistCredit"
+						required
+						placeholder="Placeholder allowed"
+					/>
+				</label>
+				<label>
+					MOQ
+					<input
+						name="moq"
+						type="number"
+						min={1}
+						defaultValue={5}
+						required
+					/>
+				</label>
+				<label>
+					Preorder deadline
+					<input
+						name="preorderClose"
+						type="datetime-local"
+						required
+					/>
+				</label>
+				<label>
+					Colour
+					<input
+						name="colour"
+						defaultValue="Black"
+						required
+					/>
+				</label>
+				<label>
+					Sizes (comma-separated)
+					<input
+						name="sizes"
+						defaultValue="S,M,L,XL"
+						required
+					/>
+				</label>
+				<label>
+					Mockup image URLs (comma-separated)
+					<input
+						name="images"
+						placeholder="Replaceable URLs"
+					/>
+				</label>
+			</div>
+			<label>
+				Description
+				<textarea
+					name="description"
+					required
+				/>
+			</label>
+			<label>
+				Vendor notes
+				<textarea name="vendorNotes" />
+			</label>
+			<fieldset>
+				<legend>Variants and placeholder prices (₹)</legend>
+				<label>
+					<input
+						type="checkbox"
+						name="garmentTypes"
+						value="normal_tshirt"
+						defaultChecked
+					/>{" "}
+					Normal T-shirt{" "}
+					<input
+						name="price-normal_tshirt"
+						type="number"
+						min={0}
+						defaultValue={599}
+					/>
+				</label>
+				<label>
+					<input
+						type="checkbox"
+						name="garmentTypes"
+						value="oversized_tshirt"
+						defaultChecked
+					/>{" "}
+					Oversized{" "}
+					<input
+						name="price-oversized_tshirt"
+						type="number"
+						min={0}
+						defaultValue={699}
+					/>
+				</label>
+				<label>
+					<input
+						type="checkbox"
+						name="garmentTypes"
+						value="hoodie"
+						defaultChecked
+					/>{" "}
+					Hoodie{" "}
+					<input
+						name="price-hoodie"
+						type="number"
+						min={0}
+						defaultValue={1199}
+					/>
+				</label>
+			</fieldset>
+			<button>Create draft campaign</button>
+			{message && <p>{message}</p>}
+		</form>
+	);
+}
