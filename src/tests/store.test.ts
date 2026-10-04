@@ -1,4 +1,9 @@
-import { describe, expect, it } from "vitest";
+import { createServer, type Server } from "node:http";
+import type { AddressInfo } from "node:net";
+import next from "next";
+import mongoose from "mongoose";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { connectDatabase } from "@/lib/database";
 import { emailIsAllowed, parseEmailAllowList } from "@/lib/store/access";
 import { calculateTotal, groupCampaignQuantities } from "@/lib/store/pricing";
 import {
@@ -7,6 +12,59 @@ import {
 	shouldApplyPaymentVerification,
 	shouldApplyRefund
 } from "@/lib/store/transitions";
+
+let appServer: Server | undefined;
+let nextApp: ReturnType<typeof next> | undefined;
+let serverOrigin = "";
+
+beforeAll(async () => {
+	nextApp = next({ dev: true, dir: process.cwd() });
+	await nextApp.prepare();
+	await connectDatabase();
+
+	const handle = nextApp.getRequestHandler();
+	appServer = createServer((request, response) => handle(request, response));
+	await new Promise<void>((resolve, reject) => {
+		appServer?.once("error", reject);
+		appServer?.listen(0, "127.0.0.1", resolve);
+	});
+	const address = appServer.address() as AddressInfo;
+	serverOrigin = `http://127.0.0.1:${address.port}`;
+}, 30_000);
+
+afterAll(async () => {
+	if (appServer?.listening) {
+		await new Promise<void>((resolve, reject) => {
+			appServer?.close((error) => (error ? reject(error) : resolve()));
+		});
+	}
+	await mongoose.disconnect();
+}, 30_000);
+
+describe("environment variables", () => {
+	it("loads MONGO_URL from the environment", () => {
+		expect(process.env.MONGO_URL).toBeDefined();
+		expect(process.env.MONGO_URL).not.toBe("");
+	});
+});
+
+describe("server", () => {
+	it("connects to the database without throwing", async () => {
+		await expect(connectDatabase()).resolves.toBeDefined();
+	});
+
+	it("serves the homepage", async () => {
+		const response = await fetch(`${serverOrigin}/`);
+		expect(response.ok).toBe(true);
+		expect(response.status).toBe(200);
+	}, 15_000);
+
+	it("returns 404 for a page that does not exist", async () => {
+		const response = await fetch(`${serverOrigin}/hashire-sori-yo`);
+		expect(response.ok).toBe(false);
+		expect(response.status).toBe(404);
+	}, 15_000);
+});
 
 describe("price calculation", () => {
 	it("uses integer paise and quantity", () =>
