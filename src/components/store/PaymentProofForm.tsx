@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import PaymentProofDropzone from "./PaymentProofDropzone";
 import styles from "./CheckoutClient.module.css";
 export default function PaymentProofForm({
 	orderNumber
@@ -10,20 +11,36 @@ export default function PaymentProofForm({
 	const router = useRouter();
 	const [error, setError] = useState("");
 	const [busy, setBusy] = useState(false);
+	const [proofFile, setProofFile] = useState<File | null>(null);
 	async function submit(event: React.FormEvent<HTMLFormElement>): Promise<void> {
 		event.preventDefault();
+		if (!proofFile) {
+			setError("Choose or drop a payment screenshot before submitting.");
+			return;
+		}
 		setBusy(true);
 		setError("");
 		const data = new FormData(event.currentTarget);
 		data.set("orderNumber", orderNumber);
-		const response = await fetch("/api/store/payments/submit", {
-			method: "POST",
-			body: data
-		});
-		const body = (await response.json()) as { error?: string };
-		setBusy(false);
-		if (!response.ok) return setError(body.error ?? "Submission failed.");
-		router.refresh();
+		data.set("proof", proofFile, proofFile.name);
+		try {
+			const response = await fetch("/api/store/payments/submit", {
+				method: "POST",
+				body: data
+			});
+			const body = (await response.json().catch(() => ({}))) as { error?: string };
+			if (!response.ok)
+				throw new Error(body.error ?? "Upload failed. Please try again.");
+			router.refresh();
+		} catch (submissionError) {
+			setError(
+				submissionError instanceof Error
+					? submissionError.message
+					: "Upload failed. Please check your connection and try again."
+			);
+		} finally {
+			setBusy(false);
+		}
 	}
 	return (
 		<form
@@ -56,21 +73,19 @@ export default function PaymentProofForm({
 					required
 				/>
 			</label>
-			<label>
-				Payment screenshot
-				<input
-					name="proof"
-					type="file"
-					accept="image/jpeg,image/png,image/webp"
-					required
-				/>
-			</label>
+			<PaymentProofDropzone
+				file={proofFile}
+				onFileChange={setProofFile}
+				disabled={busy}
+			/>
 			<small>
 				A screenshot alone never verifies payment. MASK will match it to the
 				receiving account.
 			</small>
 			{error && <p className={styles.error}>{error}</p>}
-			<button disabled={busy}>{busy ? "Submitting…" : "Submit for review"}</button>
+			<button disabled={busy || !proofFile}>
+				{busy ? "Submitting…" : "Submit for review"}
+			</button>
 		</form>
 	);
 }

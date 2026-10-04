@@ -1,0 +1,63 @@
+.dropzone {
+	position: relative;
+	display: grid;
+	place-items: center;
+	gap: 0.45rem;
+	min-height: 150px;
+	padding: 1.25rem;
+	border: 2px dashed #666;
+	border-radius: 10px;
+	background: #0b0b0b;
+	text-align: center;
+	cursor: pointer;
+	transition:
+		border-color 160ms ease,
+		background 160ms ease;
+}
+
+.dropzone:hover,
+.dropzone:focus-within,
+.dragging {
+	border-color: var(--red);
+	background: #190d0d;
+}
+
+.disabled {
+	opacity: 0.55;
+	cursor: not-allowed;
+}
+
+.input {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0 0 0 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+}
+
+.title {
+	font-size: 0.95rem;
+	font-weight: 700;
+}
+
+.hint,
+.fileMeta {
+	color: var(--muted);
+	font-size: 0.78rem;
+	line-height: 1.45;
+}
+
+.fileName {
+	max-width: 100%;
+	overflow-wrap: anywhere;
+	color: #fff;
+	font-weight: 700;
+}
+
+.error {
+	margin: 0;
+	color: #ffb1b1;
+	font-size: 0.78rem;
+}

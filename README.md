@@ -22,4 +22,4 @@ npm test
 npm run build
 ```
 
-The local payment-proof backend writes to `.private/payment-proofs` and is suitable only for development. Configure and implement private production object storage before deployment.
+Payment proofs use private MongoDB GridFS storage when `PAYMENT_PROOF_STORAGE=mongodb`. For local development, `PAYMENT_PROOF_STORAGE=local` writes to `.private/payment-proofs`; never use that filesystem mode in production.

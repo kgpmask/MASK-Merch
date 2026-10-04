@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "./CartProvider";
 import { formatMoney } from "@/lib/store/config";
+import PaymentProofDropzone from "./PaymentProofDropzone";
 import styles from "./CheckoutClient.module.css";
 
 type Created = { orderNumber: string; totalPaise: number };
@@ -22,6 +23,7 @@ export default function CheckoutClient({
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState("");
 	const [submitted, setSubmitted] = useState(false);
+	const [proofFile, setProofFile] = useState<File | null>(null);
 	async function placeOrder(): Promise<void> {
 		setBusy(true);
 		setError("");
@@ -47,21 +49,33 @@ export default function CheckoutClient({
 	): Promise<void> {
 		event.preventDefault();
 		if (!created) return;
+		if (!proofFile) {
+			setError("Choose or drop a payment screenshot before submitting.");
+			return;
+		}
 		setBusy(true);
 		setError("");
 		const data = new FormData(event.currentTarget);
 		data.set("orderNumber", created.orderNumber);
-		const response = await fetch("/api/store/payments/submit", {
-			method: "POST",
-			body: data
-		});
-		const body = (await response.json()) as { error?: string };
-		setBusy(false);
-		if (!response.ok) {
-			setError(body.error ?? "Could not submit proof.");
-			return;
+		data.set("proof", proofFile, proofFile.name);
+		try {
+			const response = await fetch("/api/store/payments/submit", {
+				method: "POST",
+				body: data
+			});
+			const body = (await response.json().catch(() => ({}))) as { error?: string };
+			if (!response.ok)
+				throw new Error(body.error ?? "Upload failed. Please try again.");
+			setSubmitted(true);
+		} catch (submissionError) {
+			setError(
+				submissionError instanceof Error
+					? submissionError.message
+					: "Upload failed. Please check your connection and try again."
+			);
+		} finally {
+			setBusy(false);
 		}
-		setSubmitted(true);
 	}
 	if (!created)
 		return (
@@ -189,15 +203,11 @@ export default function CheckoutClient({
 						required
 					/>
 				</label>
-				<label>
-					Payment screenshot
-					<input
-						name="proof"
-						type="file"
-						accept="image/jpeg,image/png,image/webp"
-						required
-					/>
-				</label>
+				<PaymentProofDropzone
+					file={proofFile}
+					onFileChange={setProofFile}
+					disabled={busy}
+				/>
 				<small>
 					JPEG, PNG or WebP, up to 5 MB. A screenshot is evidence for review, not
 					proof that MASK received funds.
@@ -205,7 +215,7 @@ export default function CheckoutClient({
 				{error && <p className={styles.error}>{error}</p>}
 				<button
 					type="submit"
-					disabled={busy}
+					disabled={busy || !proofFile}
 				>
 					{busy ? "Submitting…" : "Submit for admin verification"}
 				</button>
