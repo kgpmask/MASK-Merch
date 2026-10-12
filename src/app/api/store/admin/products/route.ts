@@ -71,7 +71,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 					[
 						{
 							productId: product._id,
-							name: `${title} preorder`,
+							name: `${title} batch`,
 							moq: body.moq,
 							preorderStart: new Date(),
 							preorderClose: close,

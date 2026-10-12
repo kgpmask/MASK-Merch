@@ -42,7 +42,7 @@ export default async function OrdersPage(): Promise<React.ReactElement> {
 			<header className={pageStyles.header}>
 				<p className={pageStyles.kicker}>Student account</p>
 				<h1>Your orders</h1>
-				<p>Payment, MOQ, refund and Gymkhana pickup status in one place.</p>
+				<p>Payment, production, refund and pickup status in one place.</p>
 			</header>
 			<div className={styles.list}>
 				{orders.length ? (

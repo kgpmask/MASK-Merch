@@ -2,6 +2,8 @@
 
 Manual-UPI preorder store for Manga and Anime Society Kharagpur. See [IMPLEMENTATION.md](./IMPLEMENTATION.md) for the architecture/spec mapping.
 
+To add artwork, create one folder per design inside `designs/artwork/`, put all its pictures in that folder, and edit the matching folder-name entry in `designs/catalog.json` for price, garment, material, GSM and size chart. See [the design folder guide](./designs/README.md) for examples and deployment details.
+
 ## Setup
 
 1. Install the Node version in `package.json` (Volta) and run `npm install`.

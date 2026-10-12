@@ -62,8 +62,7 @@ export default function CartPageClient(): React.ReactElement {
 				<p>Cart subtotal</p>
 				<strong>{formatMoney(total)}</strong>
 				<small>
-					The server will recheck current price, availability and campaign status
-					before creating your order.
+					Current prices and availability are checked before creating your order.
 				</small>
 				<Link href="/store/checkout">Continue to checkout</Link>
 			</aside>

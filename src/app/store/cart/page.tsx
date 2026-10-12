@@ -6,10 +6,7 @@ export default function CartPage(): React.ReactElement {
 			<header className={styles.header}>
 				<p className={styles.kicker}>Your selections</p>
 				<h1>Cart</h1>
-				<p>
-					Mix designs and garment types in one order. Paid quantities contribute to
-					each design’s campaign separately.
-				</p>
+				<p>Review your designs, fits, sizes and quantities before checkout.</p>
 			</header>
 			<CartPageClient />
 		</div>

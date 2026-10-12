@@ -7,6 +7,7 @@ import { config } from "dotenv";
 import { encode } from "@auth/core/jwt";
 import mongoose from "mongoose";
 import { connectDatabase } from "../src/lib/database";
+import { readDesignProducts } from "../src/lib/store/design-files";
 import { parseEmailAllowList } from "../src/lib/store/access";
 import { Campaign, Order, Product, User, Variant } from "../src/models";
 
@@ -233,6 +234,33 @@ async function main(): Promise<void> {
 		`/store/products/${product.slug}`,
 		`seeded slug: ${product.slug}`,
 		200
+	);
+	const folderDesigns = await readDesignProducts();
+	for (const design of folderDesigns.products) {
+		await expectStatus(
+			origin,
+			`/store/products/${design.slug}`,
+			`artwork folder: ${design.slug}`,
+			200
+		);
+		for (const image of [
+			...design.images,
+			...(design.sizeChart?.image ? [design.sizeChart.image] : [])
+		]) {
+			await expectStatus(origin, image, `design ${design.slug} image`, 200);
+		}
+	}
+	await expectStatus(
+		origin,
+		"/api/store/designs/1/missing-image.png",
+		"missing image rejected",
+		404
+	);
+	await expectStatus(
+		origin,
+		"/api/store/designs/1/catalog.json",
+		"non-image file rejected",
+		404
 	);
 	await expectStatus(
 		origin,

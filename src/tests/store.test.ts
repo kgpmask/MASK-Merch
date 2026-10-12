@@ -80,6 +80,10 @@ describe("price calculation", () => {
 		).toThrow());
 });
 describe("MOQ counting", () => {
+	it("allows production with a single verified piece", () => {
+		expect(campaignOutcome(1, 1)).toBe("MOQ_met");
+		expect(campaignOutcome(0, 1)).toBe("MOQ_failed");
+	});
 	it("groups paid variants by design campaign", () => {
 		const grouped = groupCampaignQuantities([
 			{ campaignId: "design-a", quantity: 2 },

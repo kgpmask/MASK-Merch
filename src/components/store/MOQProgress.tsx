@@ -6,6 +6,7 @@ export default function MOQProgress({
 	paid: number;
 	moq: number;
 }): React.ReactElement {
+	if (moq <= 1) return <p className={styles.copy}>{paid} paid</p>;
 	const percent = Math.min(100, Math.round((paid / moq) * 100));
 	return (
 		<div className={styles.wrap}>

@@ -7,37 +7,34 @@ export default function PoliciesPage(): React.ReactElement {
 				<p className={styles.kicker}>Launch policy draft</p>
 				<h1>Clear rules, no fine print.</h1>
 				<p>
-					This is an unofficial community preorder store. These placeholders must be
+					This is an unofficial community merch store. These placeholders must be
 					finalised by the store operators before launch.
 				</p>
 			</header>
 			<div className={styles.policyCopy}>
 				<section>
-					<h2>Preorders and MOQ</h2>
+					<h2>Orders</h2>
 					<p>
-						Orders are preorders. A design is produced only when it receives at least
-						five paid pieces, or its configured MOQ, before its preorder deadline.
-						Variants of the same design count together. Only manually verified
-						payments count.
+						Choose your design, fit and size, then pay by UPI. Payments are manually
+						verified before your order is processed.
 					</p>
 				</section>
 				<section>
 					<h2>Payment and refunds</h2>
 					<p>
 						A screenshot and UTR submit a payment for review; they do not prove
-						receipt. If a design misses MOQ, affected paid orders enter refund
-						pending. The authorised account holder sends the full refund manually and
-						the operator records its UTR, amount, date/time and operator. Confirmed
-						orders cannot be cancelled or refunded except where required by law or
-						where the operators approve a quality or fulfilment issue.
+						receipt. If the store cannot fulfil a paid order, it enters refund
+						pending. The authorised account holder sends the refund manually and the
+						operator records its UTR, amount, date/time and operator. Confirmed orders
+						cannot be cancelled or refunded except where required by law or where the
+						operators approve a quality or fulfilment issue.
 					</p>
 				</section>
 				<section>
 					<h2>Pickup</h2>
 					<p>
-						Confirmed orders are collected only from the configured campus pickup
-						point. No shipping is available. Wait for ready-for-pickup status before
-						visiting.
+						The store team will share collection details when orders are ready. Wait
+						for ready-for-pickup status and those instructions before collecting.
 					</p>
 				</section>
 				<section>

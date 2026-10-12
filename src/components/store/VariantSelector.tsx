@@ -14,27 +14,69 @@ export default function VariantSelector({
 	const [quantity, setQuantity] = useState(1);
 	const [added, setAdded] = useState(false);
 	const variant = useMemo(
-		() => product.variants.find((item) => item.id === selected),
+		() =>
+			product.variants.find((item) => item.id === selected) ?? product.variants[0],
 		[product.variants, selected]
+	);
+	const garmentTypes = [
+		...new Set(product.variants.map((item) => item.garmentType))
+	];
+	const sizeVariants = product.variants.filter(
+		(item) => item.garmentType === variant?.garmentType
 	);
 	return (
 		<div className={styles.box}>
-			<label htmlFor="variant">Garment, size and colour</label>
+			{garmentTypes.length > 1 ? (
+				<>
+					<label htmlFor="garment-fit">Fit</label>
+					<select
+						id="garment-fit"
+						value={variant?.garmentType ?? ""}
+						onChange={(event) => {
+							const next =
+								product.variants.find(
+									(item) =>
+										item.garmentType === event.target.value &&
+										item.size === variant?.size &&
+										item.colour === variant?.colour
+								) ??
+								product.variants.find(
+									(item) => item.garmentType === event.target.value
+								);
+							setSelected(next?.id ?? "");
+							setAdded(false);
+						}}
+					>
+						{garmentTypes.map((type) => (
+							<option
+								key={type}
+								value={type}
+							>
+								{garmentLabels[type]}
+							</option>
+						))}
+					</select>
+				</>
+			) : (
+				<p>
+					{variant ? garmentLabels[variant.garmentType] : "Currently unavailable"}
+				</p>
+			)}
+			<label htmlFor="variant">Size and colour</label>
 			<select
 				id="variant"
-				value={selected}
+				value={variant?.id ?? ""}
 				onChange={(event) => {
 					setSelected(event.target.value);
 					setAdded(false);
 				}}
 			>
-				{product.variants.map((item) => (
+				{sizeVariants.map((item) => (
 					<option
 						key={item.id}
 						value={item.id}
 					>
-						{garmentLabels[item.garmentType]} · {item.size} · {item.colour} ·{" "}
-						{formatMoney(item.pricePaise)}
+						{item.size} · {item.colour} · {formatMoney(item.pricePaise)}
 					</option>
 				))}
 			</select>
@@ -74,7 +116,7 @@ export default function VariantSelector({
 			</button>
 			<p>
 				Final prices and garment specifications remain placeholders until MASK
-				publishes the campaign.
+				finalises the listing.
 			</p>
 		</div>
 	);

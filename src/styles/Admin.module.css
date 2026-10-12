@@ -6,8 +6,7 @@
 }
 .nav a {
 	padding: 0.65rem 1rem;
-	border: 1px solid var(--line);
-	border-radius: 99px;
+	border-bottom: 2px solid var(--line);
 	text-decoration: none;
 }
 .metrics {
@@ -17,9 +16,7 @@
 }
 .metric {
 	padding: 1.2rem;
-	background: var(--panel);
-	border: 1px solid var(--line);
-	border-radius: 10px;
+	border-left: 2px solid var(--red);
 }
 .metric small {
 	color: var(--muted);
@@ -32,7 +29,7 @@
 .tableWrap {
 	overflow-x: auto;
 	border: 1px solid var(--line);
-	border-radius: 12px;
+	border-radius: 2px;
 }
 .table {
 	width: 100%;
@@ -69,14 +66,14 @@
 	padding: 0.7rem;
 	background: #111;
 	border: 1px solid #555;
-	border-radius: 7px;
+	border-radius: 2px;
 }
 .search button,
 .download {
 	padding: 0.7rem 1rem;
 	background: var(--red);
 	border: 0;
-	border-radius: 7px;
+	border-radius: 2px;
 	color: #fff;
 	text-decoration: none;
 	font-weight: 700;
@@ -89,7 +86,7 @@
 	padding: 1.2rem;
 	background: var(--panel);
 	border: 1px solid var(--line);
-	border-radius: 12px;
+	border-radius: 2px;
 	display: grid;
 	grid-template-columns: 1fr auto;
 	gap: 1rem;

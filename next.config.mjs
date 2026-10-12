@@ -2,7 +2,8 @@
 const nextConfig = {
 	/* config options here */
 	reactCompiler: true,
-	output: "standalone"
+	output: "standalone",
+	outputFileTracingIncludes: { "/*": ["./designs/**/*"] }
 };
 
 export default nextConfig;

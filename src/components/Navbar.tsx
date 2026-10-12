@@ -13,8 +13,13 @@ export default function Navbar({ user }: Props): React.ReactElement {
 	const { itemCount } = useCart();
 	useEffect(() => {
 		document.body.style.overflow = menuOpen ? "hidden" : "auto";
+		const closeOnEscape = (event: KeyboardEvent): void => {
+			if (event.key === "Escape") setMenuOpen(false);
+		};
+		window.addEventListener("keydown", closeOnEscape);
 		return () => {
 			document.body.style.overflow = "auto";
+			window.removeEventListener("keydown", closeOnEscape);
 		};
 	}, [menuOpen]);
 	const items = [
@@ -46,11 +51,18 @@ export default function Navbar({ user }: Props): React.ReactElement {
 						</span>
 					</Link>
 					<div className={styles.navbarContainer}>
+						<a
+							href="https://kgpmask.com"
+							className={styles.link}
+						>
+							MASK home ↗
+						</a>
 						{items.map((item) => (
 							<Link
 								key={item.href}
 								href={item.href}
 								className={`${styles.link} ${pathname === item.href ? styles.active : ""}`}
+								aria-current={pathname === item.href ? "page" : undefined}
 							>
 								{item.name}
 							</Link>
@@ -73,7 +85,16 @@ export default function Navbar({ user }: Props): React.ReactElement {
 					</button>
 				</div>
 			</nav>
-			<div className={`${styles.slidingMenu} ${menuOpen ? styles.menuOpen : ""}`}>
+			<div
+				className={`${styles.slidingMenu} ${menuOpen ? styles.menuOpen : ""}`}
+				inert={!menuOpen}
+			>
+				<a
+					href="https://kgpmask.com"
+					className={styles.menuLink}
+				>
+					MASK home ↗
+				</a>
 				{items.map((item) => (
 					<Link
 						key={item.href}

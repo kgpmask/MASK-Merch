@@ -1,7 +1,6 @@
 import Link from "next/link";
 import type { StoreProduct } from "@/types/store";
 import { formatMoney } from "@/lib/store/config";
-import MOQProgress from "./MOQProgress";
 import StatusBadge from "./StatusBadge";
 import styles from "./ProductCard.module.css";
 export default function ProductCard({
@@ -28,7 +27,6 @@ export default function ProductCard({
 						PLACEHOLDER
 					</span>
 				)}
-				<b>MASK / {product.title}</b>
 			</Link>
 			<div className={styles.body}>
 				<div className={styles.top}>
@@ -41,15 +39,11 @@ export default function ProductCard({
 					<StatusBadge status={product.campaign.status} />
 				</div>
 				<p className={styles.price}>From {formatMoney(Math.min(...prices))}</p>
-				<MOQProgress
-					paid={product.campaign.paidQuantity}
-					moq={product.campaign.moq}
-				/>
 				<Link
 					href={`/store/products/${product.slug}`}
 					className={styles.action}
 				>
-					View preorder <span>→</span>
+					View product <span>→</span>
 				</Link>
 			</div>
 		</article>

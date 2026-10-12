@@ -10,7 +10,7 @@ export default function Footer(): React.ReactElement {
 			<nav aria-label="Footer">
 				<Link href="/store/policies">Policies</Link>
 				<Link href="/store/contact">Contact</Link>
-				<a href="https://kgpmask.com">MASK reference site</a>
+				<a href="https://kgpmask.com">Back to MASK ↗</a>
 			</nav>
 			<small>Not an official IIT Kharagpur storefront.</small>
 		</footer>

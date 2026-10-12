@@ -29,7 +29,9 @@ export default function ContactPage(): React.ReactElement {
 				</section>
 				<section>
 					<h2>Pickup location</h2>
-					<p>The exact campus pickup point and hours remain placeholders.</p>
+					<p>
+						The store team will share collection details when your order is ready.
+					</p>
 				</section>
 			</div>
 		</div>

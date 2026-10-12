@@ -27,7 +27,7 @@ async function seed(): Promise<void> {
 			{ productId: product._id },
 			{
 				$set: {
-					name: `${item.title} preorder`,
+					name: `${item.title} batch`,
 					moq: item.campaign.moq,
 					preorderStart: new Date("2026-10-01T00:00:00.000Z"),
 					preorderClose: new Date(item.campaign.preorderClose),

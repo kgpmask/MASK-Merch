@@ -39,6 +39,13 @@ export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
 export type CartInput = { variantId: string; quantity: number };
 
+export type SizeChart = {
+	image?: string;
+	columns: string[];
+	rows: string[][];
+	note?: string;
+};
+
 export type StoreProduct = {
 	id: string;
 	title: string;
@@ -46,6 +53,9 @@ export type StoreProduct = {
 	artistCredit: string;
 	description: string;
 	images: string[];
+	material?: string;
+	gsm?: number | null;
+	sizeChart?: SizeChart | null;
 	campaign: {
 		id: string;
 		moq: number;

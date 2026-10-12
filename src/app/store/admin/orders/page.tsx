@@ -177,7 +177,7 @@ export default async function AdminOrdersPage({
 													endpoint={`/api/store/admin/orders/${order.orderNumber}`}
 													action="collected"
 													label="Mark collected"
-													confirmText="Confirm the student has collected this order at Gymkhana."
+													confirmText="Confirm the customer has collected this order."
 												/>
 											)}
 										</div>

@@ -14,7 +14,7 @@
 }
 .track {
 	height: 7px;
-	border-radius: 99px;
+	border-radius: 2px;
 	background: #353535;
 	overflow: hidden;
 }

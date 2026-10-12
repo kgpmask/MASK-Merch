@@ -13,17 +13,15 @@
 	grid-template-columns: 82px 1fr auto auto;
 	gap: 1rem;
 	align-items: center;
-	padding: 1rem;
-	background: var(--panel);
-	border: 1px solid var(--line);
-	border-radius: 12px;
+	padding: 1rem 0;
+	border-bottom: 1px solid var(--line);
 }
 .thumb {
 	display: grid;
 	place-items: center;
 	aspect-ratio: 1;
-	border-radius: 8px;
-	background: linear-gradient(145deg, #333, #111);
+	border-radius: 2px;
+	background: #191919;
 	color: var(--red);
 	font-weight: 900;
 }
@@ -50,7 +48,7 @@
 	padding: 0.45rem;
 	background: #0b0b0b;
 	border: 1px solid #555;
-	border-radius: 6px;
+	border-radius: 2px;
 }
 .quantity button {
 	grid-column: 1/-1;
@@ -67,7 +65,7 @@
 	padding: 1.4rem;
 	background: var(--panel);
 	border: 1px solid var(--line);
-	border-radius: 12px;
+	border-radius: 2px;
 }
 .summary > strong {
 	font-size: 2rem;
@@ -80,7 +78,7 @@
 .empty a {
 	padding: 0.9rem;
 	text-align: center;
-	border-radius: 99px;
+	border-radius: 2px;
 	background: var(--red);
 	font-weight: 700;
 	text-decoration: none;
@@ -89,7 +87,7 @@
 	padding: 3rem;
 	text-align: center;
 	border: 1px dashed #555;
-	border-radius: 12px;
+	border-radius: 2px;
 	display: grid;
 	gap: 1rem;
 	justify-items: center;

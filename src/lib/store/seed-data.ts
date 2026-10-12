@@ -12,7 +12,7 @@ export const placeholderProducts: StoreProduct[] = [
 		images: [],
 		campaign: {
 			id: "campaign-01",
-			moq: 5,
+			moq: 1,
 			paidQuantity: 3,
 			preorderClose: close,
 			status: "open"
@@ -62,7 +62,7 @@ export const placeholderProducts: StoreProduct[] = [
 		images: [],
 		campaign: {
 			id: "campaign-02",
-			moq: 5,
+			moq: 1,
 			paidQuantity: 1,
 			preorderClose: close,
 			status: "open"

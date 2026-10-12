@@ -96,13 +96,13 @@ export default async function OrderPage({
 							: order.status === "payment_rejected"
 								? `Payment submission rejected: ${payment?.rejectionReason ?? "Contact MASK for details."}`
 								: order.status === "refund_pending"
-									? "The campaign missed MOQ. A full manual UPI refund is pending."
+									? "We cannot fulfil this order. A full manual UPI refund is pending."
 									: order.status === "refunded"
 										? `Refund recorded${payment?.refundUtr ? ` with UTR ${payment.refundUtr}` : ""}.`
 										: order.status === "ready_for_pickup"
-											? "Ready for collection at Gymkhana. Bring a valid identity reference."
+											? "Ready for collection. The store team will share collection details."
 											: order.status === "collected"
-												? "Collected at Gymkhana."
+												? "Order collected."
 												: "Track this page for the next status update."}
 					</p>
 				</aside>

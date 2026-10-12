@@ -105,9 +105,7 @@ export default function CheckoutClient({
 							checked={accepted}
 							onChange={(event) => setAccepted(event.target.checked)}
 						/>
-						<span>
-							I accept the preorder, MOQ/refund, Gymkhana pickup and privacy policies.
-						</span>
+						<span>I accept the store, refund, pickup and privacy policies.</span>
 					</label>
 					{error && <p className={styles.error}>{error}</p>}
 					<button
@@ -134,8 +132,8 @@ export default function CheckoutClient({
 			<div className={styles.success}>
 				<h2>Proof submitted — not yet verified.</h2>
 				<p>
-					Your order is now <strong>payment_submitted</strong>. It counts toward MOQ
-					only after a MASK admin matches the actual received transaction.
+					Your order is now <strong>payment_submitted</strong>. A MASK admin must
+					match the actual received transaction before your payment is accepted.
 				</p>
 				<button
 					type="button"

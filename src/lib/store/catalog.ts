@@ -10,6 +10,8 @@ import {
 } from "@/models";
 import { placeholderProducts } from "@/lib/store/seed-data";
 import type { StoreProduct } from "@/types/store";
+import { readDesignProducts } from "@/lib/store/design-files";
+import { syncDesignProducts } from "@/lib/store/design-sync";
 
 type LeanProduct = ProductDoc & { _id: Types.ObjectId };
 type LeanVariant = VariantDoc & { _id: Types.ObjectId };
@@ -18,8 +20,17 @@ type LeanCampaign = CampaignDoc & { _id: Types.ObjectId };
 export async function getProducts(
 	includeInactive = false
 ): Promise<StoreProduct[]> {
-	if (!process.env.MONGO_URL) return placeholderProducts;
+	const designs = await readDesignProducts();
+	if (!process.env.MONGO_URL)
+		return [
+			...placeholderProducts.filter(
+				(product) =>
+					!designs.products.some((design) => design.slug === product.slug)
+			),
+			...designs.products
+		];
 	await connectDatabase();
+	await syncDesignProducts(designs.products, designs.fingerprint);
 	const products = await Product.find(includeInactive ? {} : { active: true })
 		.sort({ sortOrder: 1, title: 1 })
 		.lean<LeanProduct[]>();
@@ -45,6 +56,16 @@ export async function getProducts(
 				artistCredit: product.artistCredit,
 				description: product.description,
 				images: product.images,
+				material: product.material,
+				gsm: product.gsm,
+				sizeChart: product.sizeChart
+					? {
+							image: product.sizeChart.image,
+							columns: product.sizeChart.columns,
+							rows: product.sizeChart.rows,
+							note: product.sizeChart.note
+						}
+					: null,
 				campaign: {
 					id: campaign._id.toString(),
 					moq: campaign.moq,

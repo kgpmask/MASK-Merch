@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Cabin:wght@400;500;600;700&display=swap");
 
 :root {
-	--black: #050505;
+	--black: #000;
 	--white: #fff;
 	--red: #e43332;
 	--red-dark: #b82827;
@@ -23,7 +23,7 @@ html {
 }
 body {
 	min-height: 100vh;
-	background: #090909;
+	background: var(--black);
 	color: var(--white);
 	font-family: Cabin, Arial, sans-serif;
 }
@@ -43,9 +43,30 @@ a {
 }
 .mainContent {
 	flex: 1;
-	background:
-		linear-gradient(#080808ed, #080808f5),
-		url(/assets/background.jpg) center/cover fixed;
+	background: var(--black);
+}
+:focus-visible {
+	outline: 2px solid var(--red);
+	outline-offset: 4px;
+}
+button,
+input,
+select,
+textarea {
+	color: inherit;
+}
+button:not(:disabled),
+select {
+	cursor: pointer;
+}
+::selection {
+	background: var(--red);
+	color: white;
+}
+@media (prefers-reduced-motion: reduce) {
+	html:focus-within {
+		scroll-behavior: auto;
+	}
 }
 .srOnly {
 	position: absolute;

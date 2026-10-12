@@ -10,10 +10,8 @@
 .qr,
 .form,
 .success {
-	background: var(--panel);
-	border: 1px solid var(--line);
-	border-radius: 12px;
-	padding: 1.5rem;
+	border-top: 1px solid var(--line);
+	padding: 1.5rem 0;
 }
 .panel,
 .form {
@@ -41,7 +39,7 @@
 .success button {
 	padding: 0.95rem;
 	border: 0;
-	border-radius: 99px;
+	border-radius: 2px;
 	background: var(--red);
 	color: white;
 	font-weight: 700;
@@ -69,7 +67,7 @@
 	padding: 0.8rem;
 	color: #ffb1b1;
 	background: #4b2020;
-	border-radius: 7px;
+	border-radius: 2px;
 }
 .payment {
 	grid-template-columns: 0.9fr 1.1fr;
@@ -80,7 +78,7 @@
 .qr img {
 	width: min(100%, 300px);
 	height: auto;
-	border-radius: 12px;
+	border-radius: 2px;
 	margin: 1.25rem 0;
 }
 .qr dl {
@@ -115,7 +113,7 @@
 	padding: 0.8rem;
 	background: #0b0b0b;
 	border: 1px solid #555;
-	border-radius: 7px;
+	border-radius: 2px;
 	color: #fff;
 }
 .kicker {

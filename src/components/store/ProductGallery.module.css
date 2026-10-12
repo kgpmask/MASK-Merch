@@ -1,0 +1,141 @@
+.gallery {
+	min-width: 0;
+}
+.main {
+	min-width: 0;
+	width: 100%;
+	grid-template-columns: minmax(0, 1fr);
+	position: relative;
+	border: 1px solid var(--line);
+	border-radius: 2px;
+	background: var(--panel);
+	overflow: hidden;
+	min-height: 320px;
+	display: grid;
+	place-items: center;
+}
+.viewport {
+	display: flex;
+	width: 100%;
+	min-width: 0;
+	overflow-x: auto;
+	scroll-snap-type: x mandatory;
+	scroll-behavior: smooth;
+	scrollbar-width: none;
+	overscroll-behavior-x: contain;
+}
+.viewport::-webkit-scrollbar {
+	display: none;
+}
+.viewport .slide {
+	flex: 0 0 100%;
+	min-width: 0;
+	scroll-snap-align: start;
+	display: grid;
+	place-items: center;
+}
+.arrow {
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	display: grid;
+	place-items: center;
+	width: clamp(44px, 12%, 72px);
+	padding: 0;
+	border: 0;
+	border-radius: 0;
+	background: transparent;
+	color: #fff;
+	font: inherit;
+	font-size: 1.25rem;
+	line-height: 1;
+	text-shadow:
+		0 1px 4px #000,
+		0 0 8px #000;
+	cursor: pointer;
+	transition: background-color 150ms ease;
+}
+.arrow:hover,
+.arrow:focus-visible {
+	background: #0003;
+}
+.arrow:active {
+	background: #0005;
+}
+.arrow:focus-visible {
+	outline: 2px solid #fff;
+	outline-offset: -3px;
+}
+.previous {
+	left: 0;
+}
+.next {
+	right: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+	.viewport {
+		scroll-behavior: auto;
+	}
+	.arrow {
+		transition: none;
+	}
+}
+.counter {
+	position: absolute;
+	bottom: 12px;
+	left: 50%;
+	transform: translateX(-50%);
+	padding: 0.35rem 0.65rem;
+	border-radius: 2px;
+	background: #111e;
+	color: #fff;
+	font-size: 0.8rem;
+}
+.main a {
+	display: block;
+	width: 100%;
+}
+.main img {
+	display: block;
+	width: 100%;
+	height: clamp(340px, 48vw, 660px);
+	object-fit: contain;
+}
+.thumbnails {
+	display: flex;
+	gap: 0.75rem;
+	overflow-x: auto;
+	padding: 1rem 2px;
+}
+.thumbnails button {
+	flex: 0 0 84px;
+	border: 2px solid var(--line);
+	border-radius: 2px;
+	padding: 3px;
+	background: var(--panel);
+	cursor: pointer;
+}
+.thumbnails button[aria-pressed="true"] {
+	border-color: var(--red);
+}
+.thumbnails button:focus-visible {
+	outline: 2px solid white;
+	outline-offset: 2px;
+}
+.thumbnails img {
+	display: block;
+	width: 100%;
+	height: 80px;
+	object-fit: contain;
+}
+.hint {
+	color: var(--muted);
+	font-size: 0.85rem;
+	margin-top: 0.6rem;
+	line-height: 1.5;
+}
+@media (max-width: 780px) {
+	.main img {
+		height: clamp(320px, 80vw, 580px);
+	}
+}

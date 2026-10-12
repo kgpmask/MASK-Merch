@@ -1,0 +1,134 @@
+{
+	"defaults": {
+		"garmentType": "tshirt",
+		"colour": "Black",
+		"moq": 1,
+		"preorderClose": "2027-01-31T18:29:59.000Z",
+		"material": "To be confirmed",
+		"gsm": null,
+		"sizeChart": {
+			"image": null,
+			"columns": ["Size", "Chest (cm)", "Length (cm)"],
+			"rows": [],
+			"note": "Measurements to be confirmed."
+		},
+		"oversizedPricePaise": 69900,
+		"normalSizes": ["S", "M", "L", "XL", "XXL"],
+		"oversizedSizes": ["OS-S", "OS-M", "OS-L", "OS-XL", "OS-XXL"],
+		"normalPricePaise": 59900
+	},
+	"designs": {
+		"1": {
+			"title": "Design 1",
+			"garmentType": "tshirt",
+			"colour": "Black",
+			"moq": 1,
+			"preorderClose": "2027-01-31T18:29:59.000Z",
+			"material": "To be confirmed",
+			"gsm": null,
+			"sizeChart": {
+				"image": null,
+				"columns": ["Size", "Chest (cm)", "Length (cm)"],
+				"rows": [],
+				"note": "Measurements to be confirmed."
+			},
+			"oversizedPricePaise": 69900,
+			"normalSizes": ["S", "M", "L", "XL", "XXL"],
+			"oversizedSizes": ["OS-S", "OS-M", "OS-L", "OS-XL", "OS-XXL"],
+			"normalPricePaise": 59900
+		},
+		"2": {
+			"title": "Design 2",
+			"garmentType": "hoodie",
+			"pricePaise": 59900,
+			"sizes": ["S", "M", "L", "XL", "XXL"],
+			"colour": "Black",
+			"moq": 1,
+			"preorderClose": "2027-01-31T18:29:59.000Z",
+			"material": "To be confirmed",
+			"gsm": null,
+			"sizeChart": {
+				"image": null,
+				"columns": ["Size", "Chest (cm)", "Length (cm)"],
+				"rows": [],
+				"note": "Measurements to be confirmed."
+			}
+		},
+		"3": {
+			"title": "Design 3",
+			"garmentType": "tshirt",
+			"colour": "Black",
+			"moq": 1,
+			"preorderClose": "2027-01-31T18:29:59.000Z",
+			"material": "To be confirmed",
+			"gsm": null,
+			"sizeChart": {
+				"image": null,
+				"columns": ["Size", "Chest (cm)", "Length (cm)"],
+				"rows": [],
+				"note": "Measurements to be confirmed."
+			},
+			"oversizedPricePaise": 69900,
+			"normalSizes": ["S", "M", "L", "XL", "XXL"],
+			"oversizedSizes": ["OS-S", "OS-M", "OS-L", "OS-XL", "OS-XXL"],
+			"normalPricePaise": 59900
+		},
+		"4": {
+			"title": "Design 4",
+			"garmentType": "tshirt",
+			"colour": "Black",
+			"moq": 1,
+			"preorderClose": "2027-01-31T18:29:59.000Z",
+			"material": "To be confirmed",
+			"gsm": null,
+			"sizeChart": {
+				"image": null,
+				"columns": ["Size", "Chest (cm)", "Length (cm)"],
+				"rows": [],
+				"note": "Measurements to be confirmed."
+			},
+			"oversizedPricePaise": 69900,
+			"normalSizes": ["S", "M", "L", "XL", "XXL"],
+			"oversizedSizes": ["OS-S", "OS-M", "OS-L", "OS-XL", "OS-XXL"],
+			"normalPricePaise": 59900
+		},
+		"5": {
+			"title": "Design 5",
+			"garmentType": "tshirt",
+			"colour": "Black",
+			"moq": 1,
+			"preorderClose": "2027-01-31T18:29:59.000Z",
+			"material": "To be confirmed",
+			"gsm": null,
+			"sizeChart": {
+				"image": null,
+				"columns": ["Size", "Chest (cm)", "Length (cm)"],
+				"rows": [],
+				"note": "Measurements to be confirmed."
+			},
+			"oversizedPricePaise": 69900,
+			"normalSizes": ["S", "M", "L", "XL", "XXL"],
+			"oversizedSizes": ["OS-S", "OS-M", "OS-L", "OS-XL", "OS-XXL"],
+			"normalPricePaise": 59900
+		},
+		"6": {
+			"title": "Design 6",
+			"garmentType": "tshirt",
+			"colour": "Black",
+			"moq": 1,
+			"preorderClose": "2027-01-31T18:29:59.000Z",
+			"material": "To be confirmed",
+			"gsm": null,
+			"sizeChart": {
+				"image": null,
+				"columns": ["Size", "Chest (cm)", "Length (cm)"],
+				"rows": [],
+				"note": "Measurements to be confirmed."
+			},
+			"oversizedPricePaise": 69900,
+			"normalSizes": ["S", "M", "L", "XL", "XXL"],
+			"oversizedSizes": ["OS-S", "OS-M", "OS-L", "OS-XL", "OS-XXL"],
+			"normalPricePaise": 59900
+		}
+	}
+}

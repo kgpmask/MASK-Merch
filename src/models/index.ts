@@ -9,6 +9,7 @@ import {
 	type OrderStatus,
 	type PaymentStatus
 } from "@/types/store";
+import type { SizeChart } from "@/types/store";
 
 export interface UserDoc {
 	googleId: string;
@@ -29,6 +30,9 @@ export interface ProductDoc {
 	description: string;
 	active: boolean;
 	images: string[];
+	material?: string;
+	gsm?: number | null;
+	sizeChart?: SizeChart | null;
 	sortOrder: number;
 }
 export interface VariantDoc {
@@ -145,6 +149,20 @@ const productSchema = new Schema<ProductDoc>(
 		description: { type: String, required: true },
 		active: { type: Boolean, default: false },
 		images: { type: [String], default: [] },
+		material: { type: String, default: "To be confirmed" },
+		gsm: { type: Number, min: 1, default: null },
+		sizeChart: {
+			type: new Schema<SizeChart>(
+				{
+					image: String,
+					columns: { type: [String], default: [] },
+					rows: { type: [[String]], default: [] },
+					note: String
+				},
+				{ _id: false }
+			),
+			default: null
+		},
 		sortOrder: { type: Number, default: 0 }
 	},
 	{ timestamps: true }
@@ -176,7 +194,7 @@ const campaignSchema = new Schema<CampaignDoc>(
 			index: true
 		},
 		name: { type: String, required: true },
-		moq: { type: Number, default: 5, min: 1 },
+		moq: { type: Number, default: 1, min: 1 },
 		preorderStart: { type: Date, required: true },
 		preorderClose: { type: Date, required: true, index: true },
 		paidQuantity: { type: Number, default: 0, min: 0 },

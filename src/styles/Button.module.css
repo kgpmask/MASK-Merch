@@ -3,7 +3,7 @@
 .button {
 	padding: 1rem 2rem;
 	font-size: 40%;
-	border-radius: 40px;
+	border-radius: 2px;
 	cursor: pointer;
 	transition: background-color 0.3s ease;
 	display: inline-flex;

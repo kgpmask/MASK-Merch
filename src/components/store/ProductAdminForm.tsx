@@ -84,12 +84,12 @@ export default function ProductAdminForm(): React.ReactElement {
 						name="moq"
 						type="number"
 						min={1}
-						defaultValue={5}
+						defaultValue={1}
 						required
 					/>
 				</label>
 				<label>
-					Preorder deadline
+					Sales closing date
 					<input
 						name="preorderClose"
 						type="datetime-local"

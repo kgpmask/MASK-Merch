@@ -9,7 +9,7 @@ import { isAdminEmail } from "@/lib/store/permissions";
 export const metadata: Metadata = {
 	title: { default: "MASK Merch", template: "%s | MASK Merch" },
 	description:
-		"Unofficial community preorder store inspired by Manga and Anime Society Kharagpur."
+		"Unofficial community merch store inspired by Manga and Anime Society Kharagpur."
 };
 
 export default async function RootLayout({

@@ -5,52 +5,67 @@ import styles from "@/styles/StorePage.module.css";
 export const dynamic = "force-dynamic";
 export default async function StorePage(): Promise<React.ReactElement> {
 	const products = await getProducts();
+	const featured = products.find((product) => product.images.length > 0);
 	return (
 		<div className={styles.page}>
 			<section className={styles.hero}>
 				<div>
 					<p className={styles.kicker}>Manga and Anime Society Kharagpur</p>
 					<h1>
-						Wear the story.
+						MASK
 						<br />
-						<span>Back the drop.</span>
+						<span>MERCH.</span>
 					</h1>
 					<p className={styles.heroCopy}>
-						Limited-run MASK designs, made only when the community gets them over the
-						line. Choose your garment, pay by UPI, and collect at Gymkhana.
+						Designs from our community, off the canvas. Find your favourite artwork on
+						a T-shirt, oversized fit or hoodie.
 					</p>
 					<div className={styles.heroActions}>
 						<Link
 							href="/store/products"
 							className={styles.primary}
 						>
-							Explore the drop
-						</Link>
-						<Link
-							href="/store/policies"
-							className={styles.secondary}
-						>
-							How preorders work
+							Explore the collection →
 						</Link>
 					</div>
 				</div>
-				<aside className={styles.note}>
-					<strong>5 paid pieces unlock a design.</strong>
-					<p>
-						Only admin-verified payments count. If a design misses MOQ at its
-						deadline, paid orders move to manual full refund.
-					</p>
-				</aside>
+				{featured && (
+					<Link
+						href={`/store/products/${featured.slug}`}
+						className={styles.featured}
+					>
+						<img
+							src={featured.images[0]}
+							alt={featured.title}
+						/>
+						<span>
+							<small>From the collection</small>
+							<strong>{featured.title}</strong>
+							<b aria-hidden="true">↗</b>
+						</span>
+					</Link>
+				)}
 			</section>
+			<aside
+				className={styles.storeStrip}
+				aria-label="Ordering information"
+			>
+				<strong>Choose a design. Find your fit.</strong>
+				<p>
+					Pay by UPI and submit your reference and proof. The store team verifies
+					every payment before processing your order.
+				</p>
+				<Link href="/store/policies">How ordering works ↗</Link>
+			</aside>
 			<section className={styles.section}>
 				<div className={styles.sectionHead}>
 					<div>
-						<p className={styles.kicker}>Open campaigns</p>
+						<p className={styles.kicker}>The collection</p>
 						<h2>Designed by the MASK community</h2>
 					</div>
 					<Link href="/store/products">View catalogue →</Link>
 				</div>
-				<div className={styles.grid}>
+				<div className={`${styles.grid} ${styles.editorial}`}>
 					{products.map((product) => (
 						<ProductCard
 							key={product.id}

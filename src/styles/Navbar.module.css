@@ -63,7 +63,7 @@
 	text-decoration: none;
 	background: var(--red);
 	padding: 0.7rem 1rem;
-	border-radius: 99px;
+	border-radius: 2px;
 	font-weight: 700;
 }
 .cart span {
@@ -74,14 +74,14 @@
 	padding: 0 0.25rem;
 	background: #fff;
 	color: #111;
-	border-radius: 99px;
+	border-radius: 2px;
 	font-size: 0.72rem;
 }
 .burger {
 	display: none;
 	background: #2d2d2d;
 	border: 0;
-	border-radius: 7px;
+	border-radius: 2px;
 	width: 42px;
 	height: 42px;
 	padding: 11px;
@@ -119,14 +119,13 @@
 	font-weight: 400;
 	margin-top: 0.2rem;
 }
-@media (max-width: 800px) {
+@media (max-width: 1000px) {
 	.navbarFull {
 		height: 76px;
 	}
 	.inner {
 		width: calc(100% - 32px);
 	}
-	.logo span,
 	.navbarContainer {
 		display: none;
 	}
@@ -157,5 +156,19 @@
 		border-bottom: 1px solid var(--line);
 		text-decoration: none;
 		font-size: 1.1rem;
+	}
+}
+@media (max-width: 420px) {
+	.logo span {
+		font-size: 0.75rem;
+	}
+	.inner {
+		gap: 0.75rem;
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.slidingMenu,
+	.link:after {
+		transition: none;
 	}
 }
