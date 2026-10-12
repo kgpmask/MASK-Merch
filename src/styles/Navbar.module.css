@@ -33,6 +33,10 @@
 	display: flex;
 	align-items: center;
 	flex: 1;
+	gap: 0.25rem;
+}
+.navbarContainer > :last-child {
+	margin-left: auto;
 }
 .link {
 	padding: 0.8rem 0.9rem;
@@ -119,7 +123,7 @@
 	font-weight: 400;
 	margin-top: 0.2rem;
 }
-@media (max-width: 1000px) {
+@media (max-width: 1120px) {
 	.navbarFull {
 		height: 76px;
 	}

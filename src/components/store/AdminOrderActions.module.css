@@ -1,0 +1,21 @@
+.actions {
+	display: grid;
+	gap: 1rem;
+}
+.actions p {
+	color: var(--muted);
+	font-size: 0.85rem;
+	line-height: 1.6;
+}
+.cancel {
+	border-top: 1px solid var(--line);
+	padding-top: 1rem;
+}
+.cancel summary {
+	cursor: pointer;
+	color: var(--red);
+	font-weight: 700;
+}
+.cancel p {
+	margin: 0.75rem 0;
+}

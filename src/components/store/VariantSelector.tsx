@@ -4,6 +4,10 @@ import { useCart } from "./CartProvider";
 import { formatMoney, garmentLabels } from "@/lib/store/config";
 import type { StoreProduct } from "@/types/store";
 import styles from "./VariantSelector.module.css";
+import {
+	MAX_BACK_NAME_LENGTH,
+	requireBackName
+} from "@/lib/store/personalization";
 export default function VariantSelector({
 	product
 }: {
@@ -13,6 +17,8 @@ export default function VariantSelector({
 	const [selected, setSelected] = useState(product.variants[0]?.id ?? "");
 	const [quantity, setQuantity] = useState(1);
 	const [added, setAdded] = useState(false);
+	const [backName, setBackName] = useState("");
+	const [nameError, setNameError] = useState("");
 	const variant = useMemo(
 		() =>
 			product.variants.find((item) => item.id === selected) ?? product.variants[0],
@@ -93,12 +99,42 @@ export default function VariantSelector({
 					}
 				/>
 			</div>
+			<label htmlFor="back-name">Name to be displayed on the back</label>
+			<input
+				id="back-name"
+				required
+				type="text"
+				value={backName}
+				maxLength={MAX_BACK_NAME_LENGTH}
+				aria-describedby="back-name-hint"
+				aria-invalid={Boolean(nameError)}
+				onChange={(event) => {
+					setBackName(event.target.value);
+					setNameError("");
+					setAdded(false);
+				}}
+			/>
+			<p id="back-name-hint">
+				Required. Check spelling carefully. The same name will be printed on every
+				piece in this cart line; add separately for different names.
+			</p>
+			{nameError && <p role="alert">{nameError}</p>}
 			<button
 				type="button"
 				disabled={!variant}
 				onClick={() => {
 					if (!variant) return;
+					let name: string;
+					try {
+						name = requireBackName(backName);
+					} catch (error) {
+						setNameError(
+							error instanceof Error ? error.message : "Enter a valid name."
+						);
+						return;
+					}
 					add({
+						backName: name,
 						variantId: variant.id,
 						productSlug: product.slug,
 						productTitle: product.title,

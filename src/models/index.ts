@@ -56,10 +56,15 @@ export interface CampaignDoc {
 }
 export interface CartDoc {
 	userEmail: string;
-	items: Array<{ variantId: Types.ObjectId; quantity: number }>;
+	items: Array<{
+		variantId: Types.ObjectId;
+		quantity: number;
+		backName?: string;
+	}>;
 	updatedAt: Date;
 }
 export interface OrderItemSnapshot {
+	backName?: string;
 	productId: Types.ObjectId;
 	variantId: Types.ObjectId;
 	campaignId: Types.ObjectId;
@@ -82,6 +87,9 @@ export interface OrderDoc {
 	policyAcceptedAt: Date;
 	readyAt?: Date;
 	collectedAt?: Date;
+	cancelledAt?: Date;
+	cancelledBy?: string;
+	cancellationReason?: string;
 	createdAt: Date;
 	updatedAt: Date;
 }
@@ -219,6 +227,7 @@ const cartSchema = new Schema<CartDoc>({
 	items: [
 		{
 			variantId: { type: Schema.Types.ObjectId, ref: "Variant", required: true },
+			backName: { type: String, default: "", maxlength: 60 },
 			quantity: { type: Number, required: true, min: 1, max: 20 }
 		}
 	],
@@ -226,6 +235,7 @@ const cartSchema = new Schema<CartDoc>({
 });
 const orderItemSchema = new Schema<OrderItemSnapshot>(
 	{
+		backName: { type: String, default: "", maxlength: 60 },
 		productId: { type: Schema.Types.ObjectId, required: true },
 		variantId: { type: Schema.Types.ObjectId, required: true },
 		campaignId: { type: Schema.Types.ObjectId, required: true },
@@ -264,7 +274,10 @@ const orderSchema = new Schema<OrderDoc>(
 		},
 		policyAcceptedAt: { type: Date, required: true },
 		readyAt: Date,
-		collectedAt: Date
+		collectedAt: Date,
+		cancelledAt: Date,
+		cancelledBy: String,
+		cancellationReason: String
 	},
 	{ timestamps: true }
 );

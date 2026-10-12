@@ -28,7 +28,7 @@ export async function GET(): Promise<NextResponse> {
 				order.items
 					.map(
 						(item) =>
-							`${item.productTitle} / ${item.garmentType} / ${item.size} x${item.quantity}`
+							`${item.productTitle} / ${item.garmentType} / ${item.size} x${item.quantity}${item.backName ? ` / Name on back: ${item.backName}` : ""}`
 					)
 					.join("; "),
 				order.status,

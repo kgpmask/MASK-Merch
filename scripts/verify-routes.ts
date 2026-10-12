@@ -288,7 +288,8 @@ async function main(): Promise<void> {
 		"/store/admin",
 		"/store/admin/products",
 		"/store/admin/campaigns",
-		"/store/admin/orders"
+		"/store/admin/orders",
+		`/store/admin/orders/${fixtureOrderNumber}`
 	];
 	for (const route of adminRoutes) {
 		await expectDeniedRedirect(origin, route, userCookie);

@@ -3,7 +3,12 @@ import Link from "next/link";
 import { useCart } from "./CartProvider";
 import { formatMoney, garmentLabels } from "@/lib/store/config";
 import styles from "./CartPageClient.module.css";
-export default function CartPageClient(): React.ReactElement {
+import { cartLineKey } from "@/lib/store/personalization";
+export default function CartPageClient({
+	productImages
+}: {
+	productImages: Record<string, string>;
+}): React.ReactElement {
 	const { lines, update, remove } = useCart();
 	const total = lines.reduce(
 		(sum, line) => sum + line.unitPricePaise * line.quantity,
@@ -22,10 +27,23 @@ export default function CartPageClient(): React.ReactElement {
 			<div className={styles.lines}>
 				{lines.map((line) => (
 					<article
-						key={line.variantId}
+						key={cartLineKey(line)}
 						className={styles.line}
 					>
-						<div className={styles.thumb}>MASK</div>
+						<Link
+							href={`/store/products/${line.productSlug}`}
+							className={styles.thumb}
+							aria-label={`View ${line.productTitle}`}
+						>
+							{productImages[line.productSlug] ? (
+								<img
+									src={productImages[line.productSlug]}
+									alt={line.productTitle}
+								/>
+							) : (
+								<span>MASK</span>
+							)}
+						</Link>
 						<div className={styles.info}>
 							<h2>
 								<Link href={`/store/products/${line.productSlug}`}>
@@ -36,20 +54,29 @@ export default function CartPageClient(): React.ReactElement {
 								{garmentLabels[line.garmentType]} · {line.size} · {line.colour}
 							</p>
 							<small>{line.sku}</small>
+							{line.backName && (
+								<p>
+									Name on back: <strong>{line.backName}</strong>
+								</p>
+							)}
 						</div>
 						<div className={styles.quantity}>
-							<label htmlFor={`qty-${line.variantId}`}>Qty</label>
+							<label htmlFor={`qty-${encodeURIComponent(cartLineKey(line))}`}>
+								Qty
+							</label>
 							<input
-								id={`qty-${line.variantId}`}
+								id={`qty-${encodeURIComponent(cartLineKey(line))}`}
 								type="number"
 								min={1}
 								max={20}
 								value={line.quantity}
-								onChange={(event) => update(line.variantId, Number(event.target.value))}
+								onChange={(event) =>
+									update(cartLineKey(line), Number(event.target.value))
+								}
 							/>
 							<button
 								type="button"
-								onClick={() => remove(line.variantId)}
+								onClick={() => remove(cartLineKey(line))}
 							>
 								Remove
 							</button>

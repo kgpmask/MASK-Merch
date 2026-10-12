@@ -4,6 +4,7 @@ import { Order, Payment } from "@/models";
 import { requireUser } from "@/lib/store/permissions";
 import { assertRateLimit } from "@/lib/store/rate-limit";
 import { proofStorage } from "@/lib/store/storage";
+import { isOrderNumber } from "@/lib/store/order-number";
 
 export async function POST(request: Request): Promise<NextResponse> {
 	try {
@@ -20,7 +21,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 		const transactionAt = new Date(String(data.get("transactionAt") ?? ""));
 		const proof = data.get("proof");
 		if (
-			!/^MASK-\d+$/.test(orderNumber) ||
+			!isOrderNumber(orderNumber) ||
 			!/^[A-Z0-9-]{6,40}$/.test(utr) ||
 			payerName.length < 2 ||
 			Number.isNaN(transactionAt.getTime()) ||

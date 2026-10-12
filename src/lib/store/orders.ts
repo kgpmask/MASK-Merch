@@ -16,6 +16,8 @@ import {
 import { calculateTotal, groupCampaignQuantities } from "@/lib/store/pricing";
 import { campaignOutcome } from "@/lib/store/transitions";
 import type { CartInput, OrderStatus } from "@/types/store";
+import { requireBackName } from "@/lib/store/personalization";
+import { formatOrderNumber } from "@/lib/store/order-number";
 
 type LeanVariant = VariantDoc & { _id: Types.ObjectId };
 type LeanProduct = ProductDoc & { _id: Types.ObjectId };
@@ -30,6 +32,10 @@ export async function createOrder(
 	if (!policyAccepted) throw new Error("You must accept the preorder policy.");
 	if (input.length < 1 || input.length > 30)
 		throw new Error("Cart must contain between 1 and 30 lines.");
+	input = input.map((line) => ({
+		...line,
+		backName: requireBackName(line.backName)
+	}));
 	const ids = input.map((line) => {
 		if (
 			!Types.ObjectId.isValid(line.variantId) ||
@@ -75,6 +81,7 @@ export async function createOrder(
 		);
 		if (!product || !campaign) throw new Error("Product campaign unavailable.");
 		return {
+			backName: line.backName,
 			productId: product._id,
 			variantId: variant._id,
 			campaignId: campaign._id,
@@ -94,7 +101,7 @@ export async function createOrder(
 		{ $inc: { value: 1 } },
 		{ upsert: true, new: true, setDefaultsOnInsert: true }
 	);
-	const orderNumber = `MASK-${counter.value}`;
+	const orderNumber = formatOrderNumber(counter.value);
 	const order = await Order.create({
 		orderNumber,
 		user,
@@ -117,6 +124,7 @@ export async function createOrder(
 				$set: {
 					items: input.map((line) => ({
 						variantId: new Types.ObjectId(line.variantId),
+						backName: line.backName,
 						quantity: line.quantity
 					})),
 					updatedAt: new Date()
@@ -307,6 +315,15 @@ export async function recordRefund(
 	const cleanUtr = refundUtr.trim().toUpperCase();
 	if (!/^[A-Z0-9-]{6,40}$/.test(cleanUtr))
 		throw new Error("Enter a valid refund UTR.");
+	if (
+		!Number.isSafeInteger(amountPaise) ||
+		amountPaise <= 0 ||
+		!Number.isFinite(refundedAt.getTime()) ||
+		refundedAt > new Date()
+	)
+		throw new Error(
+			"Enter a valid refund amount and a date/time that is not in the future."
+		);
 	await connectDatabase();
 	const session = await mongoose.startSession();
 	let changed = false;

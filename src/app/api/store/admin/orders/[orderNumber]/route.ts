@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { requireAdminApi } from "@/lib/store/permissions";
+import { manageOrder } from "@/lib/store/admin-orders";
 import {
 	recordRefund,
 	rejectPayment,
@@ -22,7 +23,14 @@ export async function POST(
 			refundedAt?: string;
 		};
 		let changed = false;
-		if (body.action === "verify")
+		if (body.action === "confirm" || body.action === "cancel")
+			changed = await manageOrder(
+				orderNumber,
+				admin.email,
+				body.action,
+				body.reason ?? ""
+			);
+		else if (body.action === "verify")
 			changed = await verifyPayment(orderNumber, admin.email);
 		else if (body.action === "reject")
 			changed = await rejectPayment(orderNumber, admin.email, body.reason ?? "");

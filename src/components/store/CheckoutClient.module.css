@@ -31,6 +31,19 @@
 	line-height: 1.5;
 	color: #ddd;
 }
+.refundNotice {
+	padding: 1rem;
+	border-left: 3px solid var(--red);
+	background: #241212;
+	line-height: 1.5;
+}
+.refundNotice strong {
+	display: block;
+}
+.refundNotice p {
+	margin-top: 0.35rem;
+	color: #ddd;
+}
 .check input {
 	width: 20px;
 }

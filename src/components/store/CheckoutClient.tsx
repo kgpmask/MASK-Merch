@@ -3,7 +3,9 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useCart } from "./CartProvider";
 import { formatMoney } from "@/lib/store/config";
-import PaymentProofDropzone from "./PaymentProofDropzone";
+import PaymentProofFields from "./PaymentProofFields";
+import { submitPaymentProof } from "@/lib/store/payment-proof-client";
+import { cartLineKey } from "@/lib/store/personalization";
 import styles from "./CheckoutClient.module.css";
 
 type Created = { orderNumber: string; totalPaise: number };
@@ -17,6 +19,7 @@ export default function CheckoutClient({
 	qrUrl: string;
 }): React.ReactElement {
 	const { lines, clear } = useCart();
+	const missingBackName = lines.some((line) => !line.backName?.trim());
 	const router = useRouter();
 	const [accepted, setAccepted] = useState(false);
 	const [created, setCreated] = useState<Created | null>(null);
@@ -31,7 +34,11 @@ export default function CheckoutClient({
 			method: "POST",
 			headers: { "Content-Type": "application/json" },
 			body: JSON.stringify({
-				items: lines.map(({ variantId, quantity }) => ({ variantId, quantity })),
+				items: lines.map(({ variantId, quantity, backName }) => ({
+					variantId,
+					quantity,
+					backName
+				})),
 				policyAccepted: accepted
 			})
 		});
@@ -56,16 +63,8 @@ export default function CheckoutClient({
 		setBusy(true);
 		setError("");
 		const data = new FormData(event.currentTarget);
-		data.set("orderNumber", created.orderNumber);
-		data.set("proof", proofFile, proofFile.name);
 		try {
-			const response = await fetch("/api/store/payments/submit", {
-				method: "POST",
-				body: data
-			});
-			const body = (await response.json().catch(() => ({}))) as { error?: string };
-			if (!response.ok)
-				throw new Error(body.error ?? "Upload failed. Please try again.");
+			await submitPaymentProof(data, created.orderNumber, proofFile);
 			setSubmitted(true);
 		} catch (submissionError) {
 			setError(
@@ -86,10 +85,16 @@ export default function CheckoutClient({
 						lines.map((line) => (
 							<div
 								className={styles.item}
-								key={line.variantId}
+								key={cartLineKey(line)}
 							>
 								<span>
 									{line.productTitle} · {line.size} × {line.quantity}
+									{line.backName && (
+										<>
+											<br />
+											Name on back: {line.backName}
+										</>
+									)}
 								</span>
 								<strong>{formatMoney(line.unitPricePaise * line.quantity)}</strong>
 							</div>
@@ -99,18 +104,31 @@ export default function CheckoutClient({
 							Your cart is empty. Add products before checkout.
 						</p>
 					)}
+					<div className={styles.refundNotice}>
+						<strong>No refunds after delivery.</strong>
+						<p>If your order is not fulfilled, you will receive a full refund.</p>
+					</div>
 					<label className={styles.check}>
 						<input
 							type="checkbox"
 							checked={accepted}
 							onChange={(event) => setAccepted(event.target.checked)}
 						/>
-						<span>I accept the store, refund, pickup and privacy policies.</span>
+						<span>
+							I accept the store and refund policies, including no refunds after
+							delivery.
+						</span>
 					</label>
 					{error && <p className={styles.error}>{error}</p>}
+					{missingBackName && (
+						<p className={styles.error}>
+							Every item needs a name on the back. Remove unnamed items from your cart
+							and add them again with a name.
+						</p>
+					)}
 					<button
 						type="button"
-						disabled={!lines.length || !accepted || busy}
+						disabled={!lines.length || !accepted || busy || missingBackName}
 						onClick={placeOrder}
 					>
 						{busy ? "Creating secure order…" : "Create order & show UPI"}
@@ -176,32 +194,7 @@ export default function CheckoutClient({
 			>
 				<p className={styles.kicker}>After payment</p>
 				<h2>Submit transaction details</h2>
-				<label>
-					UTR / reference number
-					<input
-						name="utr"
-						required
-						minLength={6}
-						maxLength={40}
-					/>
-				</label>
-				<label>
-					Payer name
-					<input
-						name="payerName"
-						required
-						minLength={2}
-					/>
-				</label>
-				<label>
-					Transaction date and time
-					<input
-						name="transactionAt"
-						type="datetime-local"
-						required
-					/>
-				</label>
-				<PaymentProofDropzone
+				<PaymentProofFields
 					file={proofFile}
 					onFileChange={setProofFile}
 					disabled={busy}

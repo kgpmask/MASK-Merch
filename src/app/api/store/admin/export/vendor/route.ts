@@ -28,6 +28,7 @@ export async function GET(): Promise<NextResponse> {
 				sku: string;
 				campaign: string;
 				notes: string;
+				backName: string;
 			}
 		>();
 		for (const order of orders)
@@ -35,7 +36,13 @@ export async function GET(): Promise<NextResponse> {
 				const campaign = campaigns.find(
 					(value) => value._id.toString() === item.campaignId.toString()
 				);
-				const key = `${item.productTitle}|${item.garmentType}|${item.size}|${item.sku}`;
+				const key = JSON.stringify([
+					item.productTitle,
+					item.garmentType,
+					item.size,
+					item.sku,
+					item.backName ?? ""
+				]);
 				const current = groups.get(key);
 				if (current) current.quantity += item.quantity;
 				else
@@ -46,7 +53,8 @@ export async function GET(): Promise<NextResponse> {
 						quantity: item.quantity,
 						sku: item.sku,
 						campaign: campaign?.name ?? item.campaignId.toString(),
-						notes: campaign?.vendorNotes ?? ""
+						notes: campaign?.vendorNotes ?? "",
+						backName: item.backName ?? ""
 					});
 			}
 		const rows = [
@@ -57,7 +65,8 @@ export async function GET(): Promise<NextResponse> {
 				"Quantity",
 				"SKU",
 				"Campaign",
-				"Vendor Notes"
+				"Vendor Notes",
+				"Name on Back"
 			],
 			...[...groups.values()].map((item) => [
 				item.design,
@@ -66,7 +75,8 @@ export async function GET(): Promise<NextResponse> {
 				item.quantity,
 				item.sku,
 				item.campaign,
-				item.notes
+				item.notes,
+				item.backName
 			])
 		];
 		const csv = rows.map((row) => row.map(csvCell).join(",")).join("\r\n");

@@ -34,6 +34,7 @@
 }
 .collected,
 .refunded,
+.cancelled,
 .closed {
 	border-color: #999;
 	color: #ddd;

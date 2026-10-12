@@ -1,0 +1,22 @@
+.account button {
+	padding: 0.7rem 0.85rem;
+	border: 1px solid #666;
+	border-radius: 2px;
+	background: transparent;
+	color: #fff;
+	font-weight: 700;
+	white-space: nowrap;
+}
+.account button:hover:not(:disabled) {
+	border-color: var(--red);
+}
+.account button:disabled {
+	opacity: 0.6;
+	cursor: wait;
+}
+.account p {
+	max-width: 24ch;
+	color: var(--red-soft);
+	font-size: 0.8rem;
+	margin-top: 0.5rem;
+}

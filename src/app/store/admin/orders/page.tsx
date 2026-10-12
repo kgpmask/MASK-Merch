@@ -1,19 +1,26 @@
+import Link from "next/link";
 import { connectDatabase } from "@/lib/database";
+import { guardAdminPage } from "@/lib/store/admin";
 import { Order, Payment } from "@/models";
-import { formatMoney } from "@/lib/store/config";
-import AdminAction from "@/components/store/AdminAction";
+import { formatMoney, garmentLabels } from "@/lib/store/config";
 import StatusBadge from "@/components/store/StatusBadge";
+import { ORDER_STATUSES } from "@/types/store";
 import pageStyles from "@/styles/StorePage.module.css";
 import styles from "@/styles/Admin.module.css";
-import type { OrderStatus } from "@/types/store";
+
 export default async function AdminOrdersPage({
 	searchParams
 }: {
-	searchParams: Promise<{ q?: string; status?: string }>;
+	searchParams: Promise<{ q?: string; status?: string; page?: string }>;
 }): Promise<React.ReactElement> {
-	const { q = "", status = "" } = await searchParams;
+	await guardAdminPage();
+	const { q = "", status = "", page = "1" } = await searchParams;
+	const currentPage = Math.max(
+		1,
+		Math.min(100000, Number.parseInt(page, 10) || 1)
+	);
 	await connectDatabase();
-	const safe = q.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+	const safe = q.slice(0, 200).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 	const filter: Record<string, unknown> = {};
 	if (safe)
 		filter.$or = [
@@ -21,52 +28,53 @@ export default async function AdminOrdersPage({
 			{ "user.name": { $regex: safe, $options: "i" } },
 			{ "user.email": { $regex: safe, $options: "i" } }
 		];
-	if (status) filter.status = status;
-	const orders = await Order.find(filter)
-		.sort({ createdAt: -1 })
-		.limit(200)
-		.lean();
+	if (ORDER_STATUSES.some((item) => item === status)) filter.status = status;
+	const [orders, count] = await Promise.all([
+		Order.find(filter)
+			.sort({ createdAt: -1, _id: -1 })
+			.skip((currentPage - 1) * 50)
+			.limit(50)
+			.lean(),
+		Order.countDocuments(filter)
+	]);
 	const payments = await Payment.find({
 		orderId: { $in: orders.map((item) => item._id) }
 	}).lean();
-	const statuses: OrderStatus[] = [
-		"payment_pending",
-		"payment_submitted",
-		"payment_rejected",
-		"paid_waiting_moq",
-		"confirmed",
-		"ready_for_pickup",
-		"collected",
-		"refund_pending",
-		"refunded"
-	];
+	const paymentByOrder = new Map(
+		payments.map((item) => [item.orderId.toString(), item])
+	);
+	const pageLink = (number: number): string =>
+		`/store/admin/orders?${new URLSearchParams({ q, status, page: String(number) })}`;
 	return (
 		<div className={pageStyles.page}>
 			<header className={pageStyles.header}>
-				<p className={pageStyles.kicker}>Verification, refunds and pickup</p>
+				<p className={pageStyles.kicker}>Verification, fulfilment and refunds</p>
 				<h1>Orders</h1>
 				<p>
-					Search by name, email or order number. Proof is supporting evidence only;
-					verify against the authorised account.
+					Open an order to review every item, inspect payment proof, change its stage
+					or cancel it. Screenshots alone never verify payment.
 				</p>
 			</header>
 			<form className={styles.search}>
 				<input
 					name="q"
 					defaultValue={q}
-					placeholder="Name, email or MASK-1042"
+					aria-label="Search orders"
+					placeholder="Name, email or MS-20261012-1042"
+					maxLength={200}
 				/>
 				<select
 					name="status"
 					defaultValue={status}
+					aria-label="Filter by order status"
 				>
 					<option value="">All statuses</option>
-					{statuses.map((item) => (
+					{ORDER_STATUSES.map((item) => (
 						<option
 							value={item}
 							key={item}
 						>
-							{item}
+							{item.replaceAll("_", " ")}
 						</option>
 					))}
 				</select>
@@ -78,116 +86,102 @@ export default async function AdminOrdersPage({
 					Pickup CSV
 				</a>
 			</form>
+			<p className={styles.resultCount}>
+				{count} matching orders · Page {currentPage} of{" "}
+				{Math.max(1, Math.ceil(count / 50))}
+			</p>
 			<div className={styles.tableWrap}>
 				<table className={styles.table}>
 					<thead>
 						<tr>
-							<th>Order / student</th>
+							<th>Order ID</th>
+							<th>Customer</th>
+							<th>Items</th>
 							<th>Payment evidence</th>
-							<th>Amount</th>
-							<th>Status</th>
-							<th>Admin action</th>
+							<th>Total / status</th>
+							<th>Review</th>
 						</tr>
 					</thead>
 					<tbody>
 						{orders.map((order) => {
-							const payment = payments.find(
-								(item) => item.orderId.toString() === order._id.toString()
-							);
+							const payment = paymentByOrder.get(order._id.toString());
 							return (
 								<tr key={order.orderNumber}>
 									<td>
-										<strong>{order.orderNumber}</strong>
-										<br />
-										{order.user.name}
-										<br />
-										{order.user.email}
+										<Link href={`/store/admin/orders/${order.orderNumber}`}>
+											<strong>{order.orderNumber}</strong>
+										</Link>
 									</td>
 									<td>
-										UTR: {payment?.utr ?? "—"}
+										<p>
+											{order.user.name}
+											<br />
+											{order.user.email}
+										</p>
+										<small>
+											{order.createdAt.toLocaleString("en-IN", {
+												timeZone: "Asia/Kolkata"
+											})}{" "}
+											IST
+										</small>
+									</td>
+									<td>
+										{order.items.map((item, index) => (
+											<p key={index}>
+												{item.productTitle}
+												<br />
+												{garmentLabels[item.garmentType]} / {item.size} / {item.colour} ×{" "}
+												{item.quantity}
+												<br />
+												Name on back: {item.backName || "Not recorded (legacy order)"}
+											</p>
+										))}
+									</td>
+									<td>
+										UTR: {payment?.utr ?? "Not submitted"}
 										<br />
 										Payer: {payment?.payerName ?? "—"}
 										<br />
-										Time: {payment?.transactionAt?.toLocaleString("en-IN") ?? "—"}
+										Time:{" "}
+										{payment?.transactionAt?.toLocaleString("en-IN", {
+											timeZone: "Asia/Kolkata"
+										}) ?? "—"}
+										{payment?.transactionAt ? " IST" : ""}
 										<br />
-										{payment?.proofKey && (
-											<a
-												href={`/api/store/payment-proof/${order.orderNumber}`}
-												target="_blank"
-											>
-												Private proof ↗
-											</a>
-										)}
+										Payment: {order.paymentStatus}
 									</td>
-									<td>{formatMoney(order.totalPaise)}</td>
 									<td>
+										<strong>{formatMoney(order.totalPaise)}</strong>
+										<br />
 										<StatusBadge status={order.status} />
 									</td>
 									<td>
-										<div className={styles.actions}>
-											{order.status === "payment_submitted" && (
-												<>
-													<AdminAction
-														endpoint={`/api/store/admin/orders/${order.orderNumber}`}
-														action="verify"
-														label="Mark paid"
-														confirmText="Have you matched UTR, amount, payer and time against actual bank/UPI history?"
-													/>
-													<AdminAction
-														endpoint={`/api/store/admin/orders/${order.orderNumber}`}
-														action="reject"
-														label="Reject payment"
-														fields={[{ name: "reason", label: "Reason", required: true }]}
-													/>
-												</>
-											)}
-											{order.status === "refund_pending" && (
-												<AdminAction
-													endpoint={`/api/store/admin/orders/${order.orderNumber}`}
-													action="refund"
-													label="Record refund"
-													fields={[
-														{ name: "refundUtr", label: "Refund UTR", required: true },
-														{
-															name: "amountPaise",
-															label: "Amount ₹",
-															type: "number",
-															required: true,
-															value: String(order.totalPaise / 100)
-														},
-														{
-															name: "refundedAt",
-															label: "Sent at",
-															type: "datetime-local",
-															required: true
-														}
-													]}
-													confirmText="Only continue after the authorised account holder has sent this refund."
-												/>
-											)}
-											{order.status === "confirmed" && (
-												<AdminAction
-													endpoint={`/api/store/admin/orders/${order.orderNumber}`}
-													action="ready"
-													label="Mark ready"
-												/>
-											)}
-											{order.status === "ready_for_pickup" && (
-												<AdminAction
-													endpoint={`/api/store/admin/orders/${order.orderNumber}`}
-													action="collected"
-													label="Mark collected"
-													confirmText="Confirm the customer has collected this order."
-												/>
-											)}
-										</div>
+										<Link href={`/store/admin/orders/${order.orderNumber}`}>
+											Review / manage order →
+										</Link>
 									</td>
 								</tr>
 							);
 						})}
+						{orders.length === 0 && (
+							<tr>
+								<td colSpan={6}>No orders match this search.</td>
+							</tr>
+						)}
 					</tbody>
 				</table>
 			</div>
+			<nav
+				className={styles.nav}
+				aria-label="Order pages"
+			>
+				{currentPage > 1 && (
+					<Link href={pageLink(currentPage - 1)}>← Previous</Link>
+				)}
+				{currentPage * 50 < count && (
+					<Link href={pageLink(currentPage + 1)}>Next →</Link>
+				)}
+			</nav>
 		</div>
 	);
 }

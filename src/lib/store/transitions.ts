@@ -1,15 +1,16 @@
 import type { CampaignStatus, OrderStatus } from "@/types/store";
 
 const orderTransitions: Record<OrderStatus, readonly OrderStatus[]> = {
-	payment_pending: ["payment_submitted"],
+	payment_pending: ["payment_submitted", "cancelled"],
 	payment_submitted: ["payment_rejected", "paid_waiting_moq"],
-	payment_rejected: [],
+	payment_rejected: ["cancelled"],
 	paid_waiting_moq: ["confirmed", "refund_pending"],
-	confirmed: ["ready_for_pickup"],
-	ready_for_pickup: ["collected"],
+	confirmed: ["ready_for_pickup", "refund_pending"],
+	ready_for_pickup: ["collected", "refund_pending"],
 	collected: [],
 	refund_pending: ["refunded"],
-	refunded: []
+	refunded: [],
+	cancelled: []
 };
 const campaignTransitions: Record<CampaignStatus, readonly CampaignStatus[]> = {
 	draft: ["open"],

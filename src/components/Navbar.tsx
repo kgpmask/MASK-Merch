@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import AccountControls from "./AccountControls";
 import { useCart } from "@/components/store/CartProvider";
 import styles from "@/styles/Navbar.module.css";
 
@@ -67,6 +68,10 @@ export default function Navbar({ user }: Props): React.ReactElement {
 								{item.name}
 							</Link>
 						))}
+						<AccountControls
+							signedIn={Boolean(user)}
+							returnTo={pathname}
+						/>
 					</div>
 					<Link
 						href="/store/cart"
@@ -118,6 +123,10 @@ export default function Navbar({ user }: Props): React.ReactElement {
 						<small>{user.email}</small>
 					</span>
 				)}
+				<AccountControls
+					signedIn={Boolean(user)}
+					returnTo={pathname}
+				/>
 			</div>
 		</>
 	);

@@ -25,7 +25,8 @@ export const ORDER_STATUSES = [
 	"ready_for_pickup",
 	"collected",
 	"refund_pending",
-	"refunded"
+	"refunded",
+	"cancelled"
 ] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
@@ -37,7 +38,11 @@ export const PAYMENT_STATUSES = [
 ] as const;
 export type PaymentStatus = (typeof PAYMENT_STATUSES)[number];
 
-export type CartInput = { variantId: string; quantity: number };
+export type CartInput = {
+	variantId: string;
+	quantity: number;
+	backName?: string;
+};
 
 export type SizeChart = {
 	image?: string;
@@ -71,23 +76,4 @@ export type StoreProduct = {
 		pricePaise: number;
 		sku: string;
 	}>;
-};
-
-export type OrderView = {
-	orderNumber: string;
-	user: { name: string; email: string };
-	items: Array<{
-		productTitle: string;
-		productSlug: string;
-		garmentType: GarmentType;
-		size: string;
-		colour: string;
-		sku: string;
-		unitPricePaise: number;
-		quantity: number;
-	}>;
-	totalPaise: number;
-	status: OrderStatus;
-	paymentStatus: PaymentStatus;
-	createdAt: string;
 };

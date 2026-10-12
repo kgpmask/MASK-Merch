@@ -8,6 +8,7 @@ type Field = {
 	type?: string;
 	required?: boolean;
 	value?: string;
+	step?: string;
 };
 export default function AdminAction({
 	endpoint,
@@ -37,21 +38,33 @@ export default function AdminAction({
 		} as Record<string, string>;
 		if (typeof payload.amountPaise === "string")
 			payload.amountPaise = Math.round(Number(payload.amountPaise) * 100);
-		const response = await fetch(endpoint, {
-			method: "POST",
-			headers: { "Content-Type": "application/json" },
-			body: JSON.stringify(payload)
-		});
-		const body = (await response.json()) as { error?: string; changed?: boolean };
-		setBusy(false);
-		setMessage(
-			response.ok
-				? body.changed === false
-					? "Already applied"
-					: "Done"
-				: (body.error ?? "Action failed")
-		);
-		if (response.ok) router.refresh();
+		if (typeof payload.refundedAt === "string" && payload.refundedAt)
+			payload.refundedAt = new Date(payload.refundedAt).toISOString();
+		try {
+			const response = await fetch(endpoint, {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(payload)
+			});
+			const body = (await response.json()) as {
+				error?: string;
+				changed?: boolean;
+			};
+			setMessage(
+				response.ok
+					? body.changed === false
+						? "Not changed: already applied or this action is unavailable. Refresh to review."
+						: "Done"
+					: (body.error ?? "Action failed")
+			);
+			if (response.ok) router.refresh();
+		} catch {
+			setMessage(
+				"Could not reach the server. Refresh to check the order before trying again."
+			);
+		} finally {
+			setBusy(false);
+		}
 	}
 	return (
 		<form
@@ -66,11 +79,12 @@ export default function AdminAction({
 						type={field.type ?? "text"}
 						required={field.required}
 						defaultValue={field.value}
+						step={field.step}
 					/>
 				</label>
 			))}
 			<button disabled={busy}>{busy ? "Working…" : label}</button>
-			{message && <small>{message}</small>}
+			{message && <small role="status">{message}</small>}
 		</form>
 	);
 }

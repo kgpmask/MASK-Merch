@@ -25,12 +25,25 @@ const defaults = {
 };
 
 describe("garment fit and size selection", () => {
+	it("does not add a product without a back name", () => {
+		const [product] = designProducts([{ folder: "1", files: ["front.png"] }], {
+			defaults,
+			designs: {}
+		});
+		render(createElement(VariantSelector, { product }));
+		fireEvent.click(screen.getByRole("button", { name: "Add to cart" }));
+		expect(add).not.toHaveBeenCalled();
+		expect(screen.getByRole("alert").textContent).toContain("Enter the name");
+	});
 	it("preserves size when switching fits and adds the selected oversized variant at its configured price", () => {
 		const [product] = designProducts([{ folder: "1", files: ["front.png"] }], {
 			defaults,
 			designs: {}
 		});
 		render(createElement(VariantSelector, { product }));
+		fireEvent.change(screen.getByLabelText("Name to be displayed on the back"), {
+			target: { value: "Arul" }
+		});
 		fireEvent.change(screen.getByLabelText("Size and colour"), {
 			target: { value: "file-1-normal_tshirt-M" }
 		});
@@ -56,11 +69,18 @@ describe("garment fit and size selection", () => {
 			designs: { "2": { garmentType: "hoodie" } }
 		});
 		render(createElement(VariantSelector, { product }));
+		fireEvent.change(screen.getByLabelText("Name to be displayed on the back"), {
+			target: { value: "Arul" }
+		});
 		expect(screen.queryByLabelText("Fit")).toBeNull();
 		expect(screen.getByText("Hoodie")).toBeDefined();
 		fireEvent.click(screen.getByRole("button", { name: "Add to cart" }));
 		expect(add).toHaveBeenCalledWith(
-			expect.objectContaining({ garmentType: "hoodie", unitPricePaise: 59900 })
+			expect.objectContaining({
+				garmentType: "hoodie",
+				unitPricePaise: 59900,
+				backName: "Arul"
+			})
 		);
 	});
 	it("switches to the oversized size list without retaining an unavailable normal size", () => {
@@ -76,6 +96,9 @@ describe("garment fit and size selection", () => {
 			}
 		});
 		render(createElement(VariantSelector, { product }));
+		fireEvent.change(screen.getByLabelText("Name to be displayed on the back"), {
+			target: { value: "Arul" }
+		});
 		fireEvent.change(screen.getByLabelText("Size and colour"), {
 			target: { value: "file-1-normal_tshirt-M" }
 		});

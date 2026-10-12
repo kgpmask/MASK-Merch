@@ -9,9 +9,16 @@ export default async function ProductsPage({
 }): Promise<React.ReactElement> {
 	const { type } = await searchParams;
 	const products = await getProducts();
+	const isTshirt =
+		type === "tshirt" || type === "normal_tshirt" || type === "oversized_tshirt";
 	const filtered = type
 		? products.filter((product) =>
-				product.variants.some((variant) => variant.garmentType === type)
+				product.variants.some((variant) =>
+					isTshirt
+						? variant.garmentType === "normal_tshirt" ||
+							variant.garmentType === "oversized_tshirt"
+						: variant.garmentType === type
+				)
 			)
 		: products;
 	return (
@@ -35,16 +42,10 @@ export default async function ProductsPage({
 					All
 				</a>
 				<a
-					href="?type=normal_tshirt"
-					aria-current={type === "normal_tshirt" ? "page" : undefined}
+					href="?type=tshirt"
+					aria-current={isTshirt ? "page" : undefined}
 				>
-					Normal T-shirts
-				</a>
-				<a
-					href="?type=oversized_tshirt"
-					aria-current={type === "oversized_tshirt" ? "page" : undefined}
-				>
-					Oversized
+					T-shirts
 				</a>
 				<a
 					href="?type=hoodie"

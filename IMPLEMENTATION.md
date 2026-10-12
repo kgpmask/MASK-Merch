@@ -4,6 +4,25 @@ This App Router implementation maps the product plan onto the repository's exist
 
 ## Architecture
 
+### Back-name personalization
+
+Every design requires "Name to be displayed on the back", with no additional charge currently. Names are trimmed and Unicode-normalized; validation is shared with the server and currently allows up to 30 characters. This limit is defined in `src/lib/store/personalization.ts` and should be confirmed with the vendor. A cart line's identity includes both variant and exact name, so different names never merge. Quantity applies the same name to every piece on that line. Checkout persists the name in saved cart items and immutable order item snapshots, and displays it in review, receipts and admin orders. Vendor CSV adds `Name on Back` and groups different names separately; pickup CSV includes names in item descriptions. Existing unnamed orders remain readable; unnamed legacy cart items must be re-added with a name before checkout. No test orders have been reset or deleted.
+
+### Behaviour-preserving hygiene pass
+
+- Removed the unreferenced legacy `Button.jsx`, its CSS Module, the empty `page.module.css`, and the inactive `.eslintrc.json` (ESLint uses `eslint.config.mjs`). Removed the unused `OrderView` type and obsolete store-page CSS selectors; merged duplicate filter declarations without changing their effective styles.
+- Removed unused direct dependencies `react-icons`, `lint-staged`, and `@vitejs/plugin-react`; updated the lockfile through npm. Existing Husky commands are unchanged.
+- Shared payment-proof fields and multipart transport between checkout and order detail. Kept each page's headings, hints, button labels, validation, error messages and success behaviour unchanged. No payment/status/security rules were removed.
+- Indexed catalogue campaign/variant lookups once per request, preserving product order, variant order, first matching campaign and omission of products without campaigns.
+- Enabled TypeScript `noUnusedLocals`/`noUnusedParameters`. Retained seed fallbacks, campaign state guards, legacy JSON compatibility and the one-time MOQ migration because they still support persisted data and required workflows. No tests or artwork assets were deleted.
+- Verification: formatting, lint, type-check, all 39 tests, production build and all 35 production route/auth checks passed. Local environment variables and receiving-account QR remain Git-ignored.
+
+### Admin order operations
+
+The admin dashboard exposes actionable queues for submitted payments, paid orders awaiting confirmation, pending refunds and ready orders, plus recent activity and verified/refund values. The paginated order register searches name, email or order number and links to a protected full review page containing customer data, immutable line-item and price snapshots, personalization, payment evidence, the private proof image, refund data and audit history.
+
+Admins can verify or reject submitted payments, manually confirm a verified order, mark it ready and collected, cancel eligible orders, and record a completed refund. Actions remain constrained to valid transitions: submitted payments must be reviewed before cancellation, unpaid cancellations become `cancelled`, and paid cancellations become `refund_pending`. Cancellation and confirmation require reasons and are conditional/idempotent; cancelling paid work decrements campaign paid counts once. A cancellation never sends or claims a refund—the authorised account holder must send it before recording its UTR, amount, time and operator.
+
 ### Frontend art direction
 
 The redesign was referenced against the live https://kgpmask.com homepage and the neighbouring MASK-Next reference repository, not a replacement app scaffold. It keeps Cabin, MASK red (#E43332), black/white contrast, the circular society logo, navigation underlines, poster-led imagery and the solid red footer. The store remains explicitly unofficial.

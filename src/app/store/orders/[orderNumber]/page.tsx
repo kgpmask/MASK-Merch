@@ -33,13 +33,18 @@ export default async function OrderPage({
 			<div className={styles.receipt}>
 				<section className={styles.card}>
 					<h2>Items</h2>
-					{order.items.map((item) => (
+					{order.items.map((item, index) => (
 						<div
 							className={styles.row}
-							key={item.sku}
+							key={`${item.sku}-${index}`}
 						>
 							<div>
 								<strong>{item.productTitle}</strong>
+								{item.backName && (
+									<p>
+										Name on back: <strong>{item.backName}</strong>
+									</p>
+								)}
 								<p>
 									{garmentLabels[item.garmentType]} · {item.size} · {item.colour} ·{" "}
 									{item.sku}
@@ -103,7 +108,9 @@ export default async function OrderPage({
 											? "Ready for collection. The store team will share collection details."
 											: order.status === "collected"
 												? "Order collected."
-												: "Track this page for the next status update."}
+												: order.status === "cancelled"
+													? `Order cancelled: ${order.cancellationReason ?? "Contact MASK for details."}`
+													: "Track this page for the next status update."}
 					</p>
 				</aside>
 			</div>

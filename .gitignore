@@ -36,6 +36,9 @@ yarn-error.log*
 .env*
 !.env.example
 
+# Local receiving-account QR images; configure separately on deployment.
+/public/assets/store/upi-qr.*
+
 # vercel
 .vercel
 

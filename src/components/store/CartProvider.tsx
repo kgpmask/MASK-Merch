@@ -1,8 +1,10 @@
 "use client";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import type { GarmentType } from "@/types/store";
+import { cartLineKey, requireBackName } from "@/lib/store/personalization";
 
 export type CartLine = {
+	backName?: string;
 	variantId: string;
 	productSlug: string;
 	productTitle: string;
@@ -17,8 +19,8 @@ type CartContextValue = {
 	lines: CartLine[];
 	itemCount: number;
 	add: (line: CartLine) => void;
-	update: (variantId: string, quantity: number) => void;
-	remove: (variantId: string) => void;
+	update: (lineKey: string, quantity: number) => void;
+	remove: (lineKey: string) => void;
 	clear: () => void;
 };
 const CartContext = createContext<CartContextValue | null>(null);
@@ -51,26 +53,28 @@ export function CartProvider({
 			itemCount: lines.reduce((sum, line) => sum + line.quantity, 0),
 			add: (line) =>
 				setLines((current) => {
-					const found = current.find((item) => item.variantId === line.variantId);
+					line = { ...line, backName: requireBackName(line.backName) };
+					const key = cartLineKey(line);
+					const found = current.find((item) => cartLineKey(item) === key);
 					return found
 						? current.map((item) =>
-								item.variantId === line.variantId
+								cartLineKey(item) === key
 									? { ...item, quantity: Math.min(20, item.quantity + line.quantity) }
 									: item
 							)
 						: [...current, line];
 				}),
-			update: (variantId, quantity) =>
+			update: (lineKey, quantity) =>
 				setLines((current) =>
 					current.map((line) =>
-						line.variantId === variantId
+						cartLineKey(line) === lineKey
 							? { ...line, quantity: Math.max(1, Math.min(20, quantity)) }
 							: line
 					)
 				),
-			remove: (variantId) =>
+			remove: (lineKey) =>
 				setLines((current) =>
-					current.filter((line) => line.variantId !== variantId)
+					current.filter((line) => cartLineKey(line) !== lineKey)
 				),
 			clear: () => setLines([])
 		}),

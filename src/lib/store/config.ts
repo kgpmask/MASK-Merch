@@ -3,9 +3,7 @@ export const storeConfig = {
 	upiRecipientName: process.env.UPI_RECIPIENT_NAME ?? "MASK PAYMENT RECIPIENT",
 	upiQrImageUrl:
 		process.env.UPI_QR_IMAGE_URL ?? "/assets/store/upi-placeholder.svg",
-	contactEmail:
-		process.env.NEXT_PUBLIC_MASK_CONTACT_EMAIL ??
-		"replace-with-mask-contact@example.com",
+	contactPhone: process.env.MASK_CONTACT_PHONE?.trim() ?? "",
 	contactInstagram:
 		process.env.NEXT_PUBLIC_MASK_CONTACT_INSTAGRAM ??
 		"https://www.instagram.com/maskiitkgp",

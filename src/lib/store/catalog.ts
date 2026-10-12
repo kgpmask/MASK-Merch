@@ -45,8 +45,23 @@ export async function getProducts(
 			...(includeInactive ? {} : { status: { $ne: "draft" } })
 		}).lean<LeanCampaign[]>()
 	]);
+	const campaignsByProduct = new Map<string, LeanCampaign>();
+	for (const campaign of campaigns) {
+		const productId = campaign.productId.toString();
+		// Keep the same first-match behaviour as the original find().
+		if (!campaignsByProduct.has(productId))
+			campaignsByProduct.set(productId, campaign);
+	}
+	const variantsByProduct = new Map<string, LeanVariant[]>();
+	for (const variant of variants) {
+		const productId = variant.productId.toString();
+		const group = variantsByProduct.get(productId) ?? [];
+		group.push(variant);
+		variantsByProduct.set(productId, group);
+	}
 	return products.flatMap((product) => {
-		const campaign = campaigns.find((item) => item.productId.equals(product._id));
+		const productId = product._id.toString();
+		const campaign = campaignsByProduct.get(productId);
 		if (!campaign) return [];
 		return [
 			{
@@ -73,16 +88,14 @@ export async function getProducts(
 					preorderClose: campaign.preorderClose.toISOString(),
 					status: campaign.status
 				},
-				variants: variants
-					.filter((item) => item.productId.equals(product._id))
-					.map((item) => ({
-						id: item._id.toString(),
-						garmentType: item.garmentType,
-						size: item.size,
-						colour: item.colour,
-						pricePaise: item.pricePaise,
-						sku: item.sku
-					}))
+				variants: (variantsByProduct.get(productId) ?? []).map((item) => ({
+					id: item._id.toString(),
+					garmentType: item.garmentType,
+					size: item.size,
+					colour: item.colour,
+					pricePaise: item.pricePaise,
+					sku: item.sku
+				}))
 			}
 		];
 	});
