@@ -43,7 +43,13 @@ a {
 }
 .mainContent {
 	flex: 1;
-	background: var(--black);
+	background:
+		linear-gradient(rgba(0, 0, 0, 0.85), rgba(0, 0, 0, 0.85)),
+		url(/assets/background.jpg);
+	background-size: cover;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-attachment: fixed;
 }
 :focus-visible {
 	outline: 2px solid var(--red);
