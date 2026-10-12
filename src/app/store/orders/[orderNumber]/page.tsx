@@ -1,5 +1,5 @@
 import { notFound, redirect } from "next/navigation";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { connectDatabase } from "@/lib/database";
 import { Order, Payment } from "@/models";
 import { formatMoney, garmentLabels, storeConfig } from "@/lib/store/config";

@@ -17,7 +17,7 @@ designs/
 
 Add front, back and detail shots to the same folder. PNG, JPG, JPEG and WebP are supported. Images are sorted by filename (including numeric order); prefix them with `01-`, `02-`, etc. to choose the cover and gallery order. Unsupported source files are ignored. Empty folders do not create products. Root-level images are not imported.
 
-Refresh the store to detect changes. With MongoDB configured, imported designs have real products, size variants and preorder campaigns. Keep folder names stable: folder `1` maps to `/store/products/1`. Renaming gallery images does not change the product URL. Renaming folders creates another listing; archive old listings in admin rather than deleting orders.
+Refresh the store to detect changes. With MongoDB configured, imported designs have real products and size variants. Keep folder names stable: folder `1` maps to `/store/products/1`. Renaming gallery images does not change the product URL. Renaming folders creates another listing; archive old listings in admin rather than deleting orders.
 
 ## Per-design configuration
 
@@ -61,7 +61,7 @@ For a table, fill `columns` and `rows`; each row must have exactly one text valu
 
 ## Sync and deployment
 
-Folder configuration owns imported artwork, title, description, artist credit, material, GSM, chart, prices, sizes, MOQ and deadline. Edit these in JSON rather than the admin dashboard. Changing available sizes or garment deactivates old variants for future purchases. Existing order snapshots, campaign decisions, paid quantities and the admin-controlled product active flag are preserved.
+Folder configuration owns imported artwork, title, description, artist credit, material, GSM, chart, prices, sizes, MOQ and deadline. Edit these in JSON rather than the admin dashboard. Changing available sizes or garment deactivates old variants for future purchases. Existing order snapshots, paid quantities and the admin-controlled product active flag are preserved.
 
 Removing a folder does not delete database products or orders. Archive unused listings in admin.
 

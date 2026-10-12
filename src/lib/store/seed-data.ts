@@ -1,6 +1,4 @@
 import type { StoreProduct } from "@/types/store";
-
-const close = new Date("2027-01-31T18:29:59.000Z").toISOString();
 export const placeholderProducts: StoreProduct[] = [
 	{
 		id: "placeholder-01",
@@ -9,14 +7,8 @@ export const placeholderProducts: StoreProduct[] = [
 		artistCredit: "Artist credit placeholder",
 		description:
 			"A bold MASK society design. Final artwork, placement, ink specification and material details are placeholders pending approval.",
+		status: "open",
 		images: [],
-		campaign: {
-			id: "campaign-01",
-			moq: 1,
-			paidQuantity: 3,
-			preorderClose: close,
-			status: "open"
-		},
 		variants: [
 			{
 				id: "variant-01-s",
@@ -59,14 +51,8 @@ export const placeholderProducts: StoreProduct[] = [
 		artistCredit: "Artist credit placeholder",
 		description:
 			"A campus-inspired supernatural club graphic. Replace this copy, artwork and garment specifications from admin data before launch.",
+		status: "open",
 		images: [],
-		campaign: {
-			id: "campaign-02",
-			moq: 1,
-			paidQuantity: 1,
-			preorderClose: close,
-			status: "open"
-		},
 		variants: [
 			{
 				id: "variant-02-s",

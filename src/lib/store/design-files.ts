@@ -207,17 +207,11 @@ export function designProducts(
 						typeof entry.description === "string"
 							? entry.description
 							: "Print placement and garment specifications are pending MASK confirmation.",
+					status: "open",
 					images,
 					material: typeof material === "string" ? material : "To be confirmed",
 					gsm: typeof gsm === "number" ? gsm : null,
 					sizeChart: chart,
-					campaign: {
-						id: `file-campaign-${slug}`,
-						moq,
-						paidQuantity: 0,
-						preorderClose,
-						status: "open"
-					},
 					variants: fits.flatMap(({ type, sizes: fitSizes, price }) =>
 						fitSizes.map((size) => ({
 							id: `file-${slug}-${type}-${size}`,

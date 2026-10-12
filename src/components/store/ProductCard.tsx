@@ -36,7 +36,7 @@ export default function ProductCard({
 							<Link href={`/store/products/${product.slug}`}>{product.title}</Link>
 						</h2>
 					</div>
-					<StatusBadge status={product.campaign.status} />
+					<StatusBadge status={product.status} />
 				</div>
 				<p className={styles.price}>From {formatMoney(Math.min(...prices))}</p>
 				<Link

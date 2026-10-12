@@ -2,7 +2,8 @@
 const nextConfig = {
 	reactCompiler: true,
 	output: "standalone",
-	outputFileTracingIncludes: { "/*": ["./designs/**/*"] }
+	outputFileTracingIncludes: { "/*": ["./designs/**/*"] },
+	transpilePackages: ["next-auth"]
 };
 
 export default nextConfig;

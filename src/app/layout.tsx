@@ -3,8 +3,7 @@ import "@/styles/globals.css";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { CartProvider } from "@/components/store/CartProvider";
-import { auth } from "@/auth";
-import { isAdminEmail } from "@/lib/store/permissions";
+import { auth, adminEmails } from "@/lib/auth";
 
 export const metadata: Metadata = {
 	title: { default: "MASK Merch", template: "%s | MASK Merch" },
@@ -27,7 +26,7 @@ export default async function RootLayout({
 									? {
 											name: session.user.name ?? "Student",
 											email: session.user.email,
-											isAdmin: isAdminEmail(session.user.email)
+											isAdmin: adminEmails().includes(session.user.email.toLowerCase())
 										}
 									: null
 							}

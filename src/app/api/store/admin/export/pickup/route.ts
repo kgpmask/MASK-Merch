@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { requireAdminApi as requireAdmin } from "@/lib/store/permissions";
+import { requireAdminApi as requireAdmin } from "@/lib/auth";
 import { connectDatabase } from "@/lib/database";
 import { Order } from "@/models";
 import { csvCell } from "@/lib/store/admin";

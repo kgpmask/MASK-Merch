@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createOrder } from "@/lib/store/orders";
-import { requireUser } from "@/lib/store/permissions";
+import { requireUser } from "@/lib/auth";
 import { assertRateLimit } from "@/lib/store/rate-limit";
 import type { CartInput } from "@/types/store";
 

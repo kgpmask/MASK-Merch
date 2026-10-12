@@ -1,18 +1,18 @@
-import type { CampaignStatus, OrderStatus, PaymentStatus } from "@/types/store";
+import type { ProductStatus, OrderStatus, PaymentStatus } from "@/types/store";
 import styles from "./StatusBadge.module.css";
 export default function StatusBadge({
 	status
 }: {
-	status: CampaignStatus | OrderStatus | PaymentStatus;
+	status: ProductStatus | OrderStatus | PaymentStatus;
 }): React.ReactElement {
 	const labels: Partial<
-		Record<CampaignStatus | OrderStatus | PaymentStatus, string>
+		Record<ProductStatus | OrderStatus | PaymentStatus, string>
 	> = {
 		open: "Available",
-		paid_waiting_moq: "Payment verified",
-		MOQ_met: "Confirmed",
-		MOQ_failed: "Unavailable"
+		closed: "Unavailable",
+		confirmed: "Payment verified"
 	};
+	console.log(status);
 	return (
 		<span className={`${styles.badge} ${styles[status] ?? ""}`}>
 			{labels[status] ?? status.replaceAll("_", " ")}

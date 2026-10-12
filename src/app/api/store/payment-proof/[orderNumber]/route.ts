@@ -1,8 +1,9 @@
 import { NextResponse } from "next/server";
 import { connectDatabase } from "@/lib/database";
 import { Order, Payment } from "@/models";
-import { isAdminEmail, requireUser } from "@/lib/store/permissions";
+import { requireUser } from "@/lib/auth";
 import { proofStorage } from "@/lib/store/storage";
+import { adminEmails } from "@/lib/auth";
 
 export async function GET(
 	_request: Request,
@@ -13,7 +14,11 @@ export async function GET(
 		const { orderNumber } = await context.params;
 		await connectDatabase();
 		const order = await Order.findOne({ orderNumber });
-		if (!order || (order.user.email !== user.email && !isAdminEmail(user.email)))
+		if (
+			!order ||
+			(order.user.email !== user.email &&
+				!adminEmails().includes(user.email.toLowerCase()))
+		)
 			return NextResponse.json({ error: "Not found." }, { status: 404 });
 		const payment = await Payment.findOne({ orderId: order._id });
 		if (!payment?.proofKey)

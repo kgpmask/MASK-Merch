@@ -179,7 +179,7 @@ export default function ProductAdminForm(): React.ReactElement {
 					/>
 				</label>
 			</fieldset>
-			<button>Create draft campaign</button>
+			<button>Create draft product</button>
 			{message && <p>{message}</p>}
 		</form>
 	);

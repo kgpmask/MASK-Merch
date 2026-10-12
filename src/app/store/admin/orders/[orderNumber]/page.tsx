@@ -110,8 +110,6 @@ export default async function AdminOrderPage({
 											{item.productSlug}
 										</Link>
 									</dd>
-									<dt>Campaign ID</dt>
-									<dd>{String(item.campaignId)}</dd>
 									<dt>Product / variant ID</dt>
 									<dd>
 										{String(item.productId)} / {String(item.variantId)}

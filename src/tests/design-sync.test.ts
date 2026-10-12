@@ -5,18 +5,17 @@ vi.mock("@/models", () => ({
 	Product: {
 		findOneAndUpdate: vi.fn().mockResolvedValue({ _id: "product-id" })
 	},
-	Campaign: { findOneAndUpdate: vi.fn().mockResolvedValue({}) },
 	Variant: {
 		findOneAndUpdate: vi.fn().mockResolvedValue({}),
 		updateMany: vi.fn().mockResolvedValue({})
 	}
 }));
 
-import { Campaign, Product, Variant } from "@/models";
+import { Product, Variant } from "@/models";
 import { syncDesignProducts } from "@/lib/store/design-sync";
 
 describe("design database sync", () => {
-	it("preserves campaign decisions and paid counts, retires other garments, and skips duplicate sync", async () => {
+	it("preserves paid counts, retires other garments, and skips duplicate sync", async () => {
 		const products = designProducts(
 			[{ folder: "new-design", files: ["front.png", "back.png"] }],
 			{
@@ -51,14 +50,6 @@ describe("design database sync", () => {
 				})
 			}),
 			{ upsert: true, returnDocument: "after" }
-		);
-		expect(Campaign.findOneAndUpdate).toHaveBeenCalledWith(
-			{ productId: "product-id" },
-			expect.objectContaining({
-				$set: { moq: 5, preorderClose: new Date("2027-01-31T18:29:59.000Z") },
-				$setOnInsert: expect.objectContaining({ paidQuantity: 0, status: "open" })
-			}),
-			{ upsert: true }
 		);
 		expect(Variant.updateMany).toHaveBeenCalledWith(
 			{

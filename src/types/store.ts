@@ -5,22 +5,13 @@ export const GARMENT_TYPES = [
 ] as const;
 export type GarmentType = (typeof GARMENT_TYPES)[number];
 
-export const CAMPAIGN_STATUSES = [
-	"draft",
-	"open",
-	"MOQ_met",
-	"vendor_ordered",
-	"ready_for_pickup",
-	"closed",
-	"MOQ_failed"
-] as const;
-export type CampaignStatus = (typeof CAMPAIGN_STATUSES)[number];
+export const PRODUCT_STATUSES = ["open", "closed"] as const;
+export type ProductStatus = (typeof PRODUCT_STATUSES)[number];
 
 export const ORDER_STATUSES = [
 	"payment_pending",
 	"payment_submitted",
 	"payment_rejected",
-	"paid_waiting_moq",
 	"confirmed",
 	"ready_for_pickup",
 	"collected",
@@ -57,17 +48,11 @@ export type StoreProduct = {
 	slug: string;
 	artistCredit: string;
 	description: string;
+	status: ProductStatus;
 	images: string[];
 	material?: string;
 	gsm?: number | null;
 	sizeChart?: SizeChart | null;
-	campaign: {
-		id: string;
-		moq: number;
-		paidQuantity: number;
-		preorderClose: string;
-		status: CampaignStatus;
-	};
 	variants: Array<{
 		id: string;
 		garmentType: GarmentType;

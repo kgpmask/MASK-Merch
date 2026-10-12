@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest";
-import { emailIsAllowed, parseEmailAllowList } from "@/lib/store/access";
-import { calculateTotal, groupCampaignQuantities } from "@/lib/store/pricing";
+import { emailIsAllowed, parseEmailAllowList } from "@/lib/auth";
+import { calculateTotal } from "@/lib/store/pricing";
 import {
-	campaignOutcome,
 	canTransitionOrder,
 	shouldApplyPaymentVerification,
 	shouldApplyRefund
@@ -28,26 +27,9 @@ describe("price calculation", () => {
 			calculateTotal([{ unitPricePaise: 10_000, quantity: 0 }])
 		).toThrow());
 });
-describe("MOQ counting", () => {
-	it("allows production with a single verified piece", () => {
-		expect(campaignOutcome(1, 1)).toBe("MOQ_met");
-		expect(campaignOutcome(0, 1)).toBe("MOQ_failed");
-	});
-	it("groups paid variants by design campaign", () => {
-		const grouped = groupCampaignQuantities([
-			{ campaignId: "design-a", quantity: 2 },
-			{ campaignId: "design-a", quantity: 3 },
-			{ campaignId: "design-b", quantity: 1 }
-		]);
-		expect(grouped.get("design-a")).toBe(5);
-		expect(campaignOutcome(grouped.get("design-a") ?? 0, 5)).toBe("MOQ_met");
-		expect(campaignOutcome(grouped.get("design-b") ?? 0, 5)).toBe("MOQ_failed");
-	});
-});
 describe("order transitions", () => {
 	it("allows only specified edges", () => {
 		expect(canTransitionOrder("payment_pending", "payment_submitted")).toBe(true);
-		expect(canTransitionOrder("payment_pending", "paid_waiting_moq")).toBe(false);
 		expect(canTransitionOrder("confirmed", "ready_for_pickup")).toBe(true);
 		expect(canTransitionOrder("payment_pending", "cancelled")).toBe(true);
 		expect(canTransitionOrder("confirmed", "refund_pending")).toBe(true);
@@ -57,7 +39,6 @@ describe("order transitions", () => {
 describe("idempotency guards", () => {
 	it("applies payment verification only once", () => {
 		expect(shouldApplyPaymentVerification("payment_submitted")).toBe(true);
-		expect(shouldApplyPaymentVerification("paid_waiting_moq")).toBe(false);
 	});
 	it("applies refund recording only once", () => {
 		expect(shouldApplyRefund("refund_pending")).toBe(true);

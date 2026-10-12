@@ -1,9 +1,13 @@
 import mongoose from "mongoose";
 import { NextResponse } from "next/server";
 import { connectDatabase } from "@/lib/database";
-import { AuditLog, Campaign, Product, Variant } from "@/models";
-import { requireAdminApi as requireAdmin } from "@/lib/store/permissions";
-import { GARMENT_TYPES, type GarmentType } from "@/types/store";
+import { AuditLog, Product, Variant } from "@/models";
+import { requireAdminApi as requireAdmin } from "@/lib/auth";
+import {
+	GARMENT_TYPES,
+	type GarmentType,
+	type ProductStatus
+} from "@/types/store";
 
 type VariantInput = {
 	garmentType: GarmentType;
@@ -19,15 +23,14 @@ export async function POST(request: Request): Promise<NextResponse> {
 			slug?: string;
 			artistCredit?: string;
 			description?: string;
+			status: ProductStatus;
 			images?: string[];
 			moq?: number;
-			preorderClose?: string;
 			vendorNotes?: string;
 			variants?: VariantInput[];
 		};
 		const title = body.title?.trim() ?? "";
 		const slug = body.slug?.trim().toLowerCase() ?? "";
-		const close = new Date(body.preorderClose ?? "");
 		const variants = body.variants ?? [];
 		if (
 			title.length < 2 ||
@@ -35,11 +38,9 @@ export async function POST(request: Request): Promise<NextResponse> {
 			!body.description?.trim() ||
 			!Number.isSafeInteger(body.moq) ||
 			(body.moq ?? 0) < 1 ||
-			Number.isNaN(close.getTime()) ||
-			close <= new Date() ||
 			!variants.length
 		)
-			throw new Error("Complete all product, campaign and variant fields.");
+			throw new Error("Complete all product and variant fields.");
 		for (const variant of variants)
 			if (
 				!GARMENT_TYPES.includes(variant.garmentType) ||
@@ -60,24 +61,9 @@ export async function POST(request: Request): Promise<NextResponse> {
 							slug,
 							artistCredit: body.artistCredit?.trim() || "Artist credit placeholder",
 							description: body.description?.trim(),
+							status: body.status,
 							images: body.images ?? [],
-							active: false,
 							sortOrder: 0
-						}
-					],
-					{ session }
-				);
-				await Campaign.create(
-					[
-						{
-							productId: product._id,
-							name: `${title} batch`,
-							moq: body.moq,
-							preorderStart: new Date(),
-							preorderClose: close,
-							paidQuantity: 0,
-							status: "draft",
-							vendorNotes: body.vendorNotes?.trim() ?? ""
 						}
 					],
 					{ session }
@@ -162,10 +148,6 @@ export async function PATCH(request: Request): Promise<NextResponse> {
 			product.artistCredit = body.artistCredit.trim();
 			product.images = body.images ?? [];
 			await Promise.all([
-				Campaign.updateOne(
-					{ productId: product._id, status: { $in: ["draft", "open"] } },
-					{ $set: { moq: body.moq, preorderClose: close } }
-				),
 				Variant.bulkWrite(
 					variants.map((variant) => ({
 						updateOne: {
@@ -178,12 +160,8 @@ export async function PATCH(request: Request): Promise<NextResponse> {
 				)
 			]);
 		} else if (body.action === "publish") {
-			product.active = true;
-			await Campaign.updateOne(
-				{ productId: product._id, status: "draft" },
-				{ $set: { status: "open", preorderStart: new Date() } }
-			);
-		} else if (body.action === "archive") product.active = false;
+			product.status = "open";
+		} else if (body.action === "archive") product.status = "closed";
 		else product.sortOrder += body.action === "move_up" ? -1 : 1;
 		await product.save();
 		await AuditLog.create({

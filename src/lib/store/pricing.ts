@@ -12,15 +12,3 @@ export function calculateTotal(lines: PriceLine[]): number {
 		return total + line.unitPricePaise * line.quantity;
 	}, 0);
 }
-
-export function groupCampaignQuantities(
-	lines: Array<{ campaignId: string; quantity: number }>
-): Map<string, number> {
-	const grouped = new Map<string, number>();
-	for (const line of lines)
-		grouped.set(
-			line.campaignId,
-			(grouped.get(line.campaignId) ?? 0) + line.quantity
-		);
-	return grouped;
-}

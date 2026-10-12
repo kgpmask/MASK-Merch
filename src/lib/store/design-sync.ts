@@ -1,4 +1,4 @@
-import { Campaign, Product, Variant } from "@/models";
+import { Product, Variant } from "@/models";
 import type { StoreProduct } from "@/types/store";
 
 let lastFingerprint = "";
@@ -27,22 +27,6 @@ export async function syncDesignProducts(
 					$setOnInsert: { active: true, sortOrder: 0 }
 				},
 				{ upsert: true, returnDocument: "after" }
-			);
-			await Campaign.findOneAndUpdate(
-				{ productId: product._id },
-				{
-					$set: {
-						moq: item.campaign.moq,
-						preorderClose: new Date(item.campaign.preorderClose)
-					},
-					$setOnInsert: {
-						name: `${item.title} batch`,
-						preorderStart: new Date(),
-						paidQuantity: 0,
-						status: "open"
-					}
-				},
-				{ upsert: true }
 			);
 			for (const variant of item.variants) {
 				await Variant.findOneAndUpdate(

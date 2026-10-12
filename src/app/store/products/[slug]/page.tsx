@@ -24,7 +24,7 @@ export default async function ProductPage({
 				<section className={styles.details}>
 					<p className={styles.kicker}>{product.artistCredit}</p>
 					<h1>{product.title}</h1>
-					<StatusBadge status={product.campaign.status} />
+					<StatusBadge status={product.status} />
 					<p>{product.description}</p>
 					<div className={styles.facts}>
 						<div className={styles.fact}>

@@ -97,11 +97,11 @@
 	text-decoration: none;
 	font-weight: 700;
 }
-.campaigns {
+.products {
 	display: grid;
 	gap: 0.8rem;
 }
-.campaign {
+.product {
 	padding: 1.2rem;
 	background: var(--panel);
 	border: 1px solid var(--line);
@@ -110,7 +110,7 @@
 	grid-template-columns: 1fr auto;
 	gap: 1rem;
 }
-.campaign p {
+.product p {
 	color: var(--muted);
 	margin-top: 0.4rem;
 }
@@ -118,7 +118,7 @@
 	.metrics {
 		grid-template-columns: repeat(2, 1fr);
 	}
-	.campaign {
+	.product {
 		grid-template-columns: 1fr;
 	}
 }

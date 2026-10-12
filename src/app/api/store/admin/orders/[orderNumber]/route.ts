@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
-import { requireAdminApi } from "@/lib/store/permissions";
-import { manageOrder } from "@/lib/store/admin-orders";
+import { requireAdminApi } from "@/lib/auth";
+import { manageOrder } from "@/lib/store/admin";
 import {
 	recordRefund,
 	rejectPayment,

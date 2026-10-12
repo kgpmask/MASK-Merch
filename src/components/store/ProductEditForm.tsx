@@ -16,12 +16,10 @@ type Props = {
 		description: string;
 		images: string[];
 	};
-	campaign: { moq: number; preorderClose: string };
 	variants: EditableVariant[];
 };
 export default function ProductEditForm({
 	product,
-	campaign,
 	variants
 }: Props): React.ReactElement {
 	const router = useRouter();
@@ -40,7 +38,6 @@ export default function ProductEditForm({
 				.map((value) => value.trim())
 				.filter(Boolean),
 			moq: Number(form.get("moq")),
-			preorderClose: form.get("preorderClose"),
 			variants: variants.map((variant) => ({
 				id: variant.id,
 				pricePaise: Math.round(Number(form.get(`price-${variant.id}`)) * 100),
@@ -84,16 +81,6 @@ export default function ProductEditForm({
 						name="moq"
 						type="number"
 						min={1}
-						defaultValue={campaign.moq}
-						required
-					/>
-				</label>
-				<label>
-					Deadline
-					<input
-						name="preorderClose"
-						type="datetime-local"
-						defaultValue={campaign.preorderClose.slice(0, 16)}
 						required
 					/>
 				</label>

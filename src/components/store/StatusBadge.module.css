@@ -13,7 +13,7 @@
 }
 .open,
 .MOQ_met,
-.paid_waiting_moq,
+.confirmed,
 .confirmed,
 .verified {
 	border-color: #2f9e73;

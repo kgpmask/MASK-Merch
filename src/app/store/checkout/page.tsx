@@ -1,4 +1,4 @@
-import { auth, signIn } from "@/auth";
+import { auth, signIn } from "@/lib/auth";
 import CheckoutClient from "@/components/store/CheckoutClient";
 import { storeConfig } from "@/lib/store/config";
 import styles from "@/styles/StorePage.module.css";

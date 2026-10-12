@@ -8,7 +8,12 @@ dotenv.config({ path: ".env.local", override: false, quiet: true });
 
 export default defineConfig({
 	test: {
-		environment: "node"
+		environment: "node",
+		server: {
+			deps: {
+				inline: ["next-auth"]
+			}
+		}
 	},
 	resolve: {
 		alias: {

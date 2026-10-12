@@ -1,13 +1,6 @@
 import { Types } from "mongoose";
 import { connectDatabase } from "@/lib/database";
-import {
-	Campaign,
-	Product,
-	Variant,
-	type CampaignDoc,
-	type ProductDoc,
-	type VariantDoc
-} from "@/models";
+import { Product, Variant, type ProductDoc, type VariantDoc } from "@/models";
 import { placeholderProducts } from "@/lib/store/seed-data";
 import type { StoreProduct } from "@/types/store";
 import { readDesignProducts } from "@/lib/store/design-files";
@@ -15,10 +8,9 @@ import { syncDesignProducts } from "@/lib/store/design-sync";
 
 type LeanProduct = ProductDoc & { _id: Types.ObjectId };
 type LeanVariant = VariantDoc & { _id: Types.ObjectId };
-type LeanCampaign = CampaignDoc & { _id: Types.ObjectId };
 
 export async function getProducts(
-	includeInactive = false
+	includeInactive = true
 ): Promise<StoreProduct[]> {
 	const designs = await readDesignProducts();
 	if (!process.env.MONGO_URL)
@@ -31,27 +23,16 @@ export async function getProducts(
 		];
 	await connectDatabase();
 	await syncDesignProducts(designs.products, designs.fingerprint);
-	const products = await Product.find(includeInactive ? {} : { active: true })
+	const products = await Product.find(includeInactive ? {} : { status: "open" })
 		.sort({ sortOrder: 1, title: 1 })
 		.lean<LeanProduct[]>();
 	const productIds = products.map((item) => item._id);
-	const [variants, campaigns] = await Promise.all([
+	const [variants] = await Promise.all([
 		Variant.find({
 			productId: { $in: productIds },
 			...(includeInactive ? {} : { active: true })
-		}).lean<LeanVariant[]>(),
-		Campaign.find({
-			productId: { $in: productIds },
-			...(includeInactive ? {} : { status: { $ne: "draft" } })
-		}).lean<LeanCampaign[]>()
+		}).lean<LeanVariant[]>()
 	]);
-	const campaignsByProduct = new Map<string, LeanCampaign>();
-	for (const campaign of campaigns) {
-		const productId = campaign.productId.toString();
-		// Keep the same first-match behaviour as the original find().
-		if (!campaignsByProduct.has(productId))
-			campaignsByProduct.set(productId, campaign);
-	}
 	const variantsByProduct = new Map<string, LeanVariant[]>();
 	for (const variant of variants) {
 		const productId = variant.productId.toString();
@@ -61,8 +42,6 @@ export async function getProducts(
 	}
 	return products.flatMap((product) => {
 		const productId = product._id.toString();
-		const campaign = campaignsByProduct.get(productId);
-		if (!campaign) return [];
 		return [
 			{
 				id: product._id.toString(),
@@ -70,6 +49,7 @@ export async function getProducts(
 				slug: product.slug,
 				artistCredit: product.artistCredit,
 				description: product.description,
+				status: product.status,
 				images: product.images,
 				material: product.material,
 				gsm: product.gsm,
@@ -81,13 +61,6 @@ export async function getProducts(
 							note: product.sizeChart.note
 						}
 					: null,
-				campaign: {
-					id: campaign._id.toString(),
-					moq: campaign.moq,
-					paidQuantity: campaign.paidQuantity,
-					preorderClose: campaign.preorderClose.toISOString(),
-					status: campaign.status
-				},
 				variants: (variantsByProduct.get(productId) ?? []).map((item) => ({
 					id: item._id.toString(),
 					garmentType: item.garmentType,

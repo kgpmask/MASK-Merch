@@ -18,7 +18,7 @@ export default function AdminOrderActions({
 	const canCancel = [
 		"payment_pending",
 		"payment_rejected",
-		"paid_waiting_moq",
+		"confirmed",
 		"confirmed",
 		"ready_for_pickup"
 	].includes(status);
@@ -49,7 +49,7 @@ export default function AdminOrderActions({
 					</p>
 				</>
 			)}
-			{status === "paid_waiting_moq" && (
+			{status === "confirmed" && (
 				<AdminAction
 					endpoint={endpoint}
 					action="confirm"

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { cancellationStatus } from "@/lib/store/admin-orders";
+import { cancellationStatus } from "@/lib/store/admin";
 
 describe("admin order cancellation policy", () => {
 	it("cancels unpaid orders without creating a false refund", () => {
@@ -8,9 +8,7 @@ describe("admin order cancellation policy", () => {
 	});
 
 	it("sends verified paid orders into the refund workflow", () => {
-		expect(cancellationStatus("paid_waiting_moq", "verified")).toBe(
-			"refund_pending"
-		);
+		expect(cancellationStatus("confirmed", "verified")).toBe("refund_pending");
 		expect(cancellationStatus("confirmed", "verified")).toBe("refund_pending");
 		expect(cancellationStatus("ready_for_pickup", "verified")).toBe(
 			"refund_pending"

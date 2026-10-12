@@ -4,7 +4,6 @@ import { beforeEach, expect, it, vi } from "vitest";
 const mocks = vi.hoisted(() => ({
 	variants: vi.fn(),
 	products: vi.fn(),
-	campaigns: vi.fn(),
 	orders: vi.fn(),
 	create: vi.fn(),
 	payment: vi.fn(),
@@ -12,12 +11,11 @@ const mocks = vi.hoisted(() => ({
 	counter: vi.fn()
 }));
 vi.mock("@/lib/database", () => ({ connectDatabase: vi.fn() }));
-vi.mock("@/auth", () => ({ auth: vi.fn() }));
-vi.mock("@/lib/store/permissions", () => ({ requireAdminApi: vi.fn() }));
+vi.mock("@/lib/auth", () => ({ auth: vi.fn() }));
+vi.mock("@/lib/auth", () => ({ requireAdminApi: vi.fn() }));
 vi.mock("@/models", () => ({
 	Variant: { find: mocks.variants },
 	Product: { find: mocks.products },
-	Campaign: { find: mocks.campaigns },
 	Order: { find: mocks.orders, create: mocks.create },
 	Payment: { create: mocks.payment },
 	Cart: { findOneAndUpdate: mocks.cart },
@@ -28,7 +26,6 @@ import { createOrder } from "@/lib/store/orders";
 import { GET as exportVendor } from "@/app/api/store/admin/export/vendor/route";
 
 const productId = new Types.ObjectId();
-const campaignId = new Types.ObjectId();
 const variantId = new Types.ObjectId();
 const variant = {
 	_id: variantId,
@@ -40,13 +37,11 @@ const variant = {
 	pricePaise: 59900
 };
 const product = { _id: productId, title: "Design 1", slug: "1" };
-const campaign = { _id: campaignId, productId, name: "Batch", vendorNotes: "" };
 
 beforeEach(() => {
 	vi.clearAllMocks();
 	mocks.variants.mockReturnValue({ lean: async () => [variant] });
 	mocks.products.mockReturnValue({ lean: async () => [product] });
-	mocks.campaigns.mockReturnValue({ lean: async () => [campaign] });
 	mocks.counter.mockResolvedValue({ value: 1042 });
 	mocks.create.mockResolvedValue({ _id: new Types.ObjectId() });
 });
@@ -112,7 +107,6 @@ it("exports different names separately and groups identical names", async () => 
 		garmentType: "normal_tshirt",
 		size: "M",
 		sku: "MASK-1-M",
-		campaignId,
 		quantity: 1
 	};
 	mocks.orders.mockReturnValue({
@@ -130,7 +124,7 @@ it("exports different names separately and groups identical names", async () => 
 	expect(response.status).toBe(200);
 	const csv = await response.text();
 	expect(csv).toContain("Vendor Notes,Name on Back");
-	expect(csv).toContain("Design 1,normal_tshirt,M,3,MASK-1-M,Batch,,Arul");
-	expect(csv).toContain("Design 1,normal_tshirt,M,1,MASK-1-M,Batch,,MASK");
+	expect(csv).toContain("Design 1,normal_tshirt,M,3,MASK-1-M,,Arul");
+	expect(csv).toContain("Design 1,normal_tshirt,M,1,MASK-1-M,,MASK");
 	expect(csv.split("\r\n")).toHaveLength(4);
 });

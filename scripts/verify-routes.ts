@@ -8,8 +8,8 @@ import { encode } from "@auth/core/jwt";
 import mongoose from "mongoose";
 import { connectDatabase } from "../src/lib/database";
 import { readDesignProducts } from "../src/lib/store/design-files";
-import { parseEmailAllowList } from "../src/lib/store/access";
-import { Campaign, Order, Product, User, Variant } from "../src/models";
+import { parseEmailAllowList } from "../src/lib/auth";
+import { Order, Product, User, Variant } from "../src/models";
 
 config({ path: ".env.local", quiet: true });
 
@@ -145,15 +145,15 @@ async function main(): Promise<void> {
 		throw new Error("ADMIN_EMAILS must contain an authorised test admin.");
 
 	await connectDatabase();
-	const product = await Product.findOne({ active: true }).sort({ sortOrder: 1 });
+	const product = await Product.findOne({ status: "open" }).sort({
+		sortOrder: 1
+	});
 	if (!product)
-		throw new Error("No active product found. Run npm run seed first.");
-	const [variant, campaign] = await Promise.all([
-		Variant.findOne({ productId: product._id, active: true }),
-		Campaign.findOne({ productId: product._id })
+		throw new Error("No open product found. Run npm run seed first.");
+	const [variant] = await Promise.all([
+		Variant.findOne({ productId: product._id, active: true })
 	]);
-	if (!variant || !campaign)
-		throw new Error("The seeded product needs an active variant and campaign.");
+	if (!variant) throw new Error("The seeded product needs an active variant.");
 
 	await User.create({
 		googleId: `route-check-${randomUUID()}`,
@@ -169,7 +169,6 @@ async function main(): Promise<void> {
 			{
 				productId: product._id,
 				variantId: variant._id,
-				campaignId: campaign._id,
 				productTitle: product.title,
 				productSlug: product.slug,
 				garmentType: variant.garmentType,
@@ -287,7 +286,6 @@ async function main(): Promise<void> {
 	const adminRoutes = [
 		"/store/admin",
 		"/store/admin/products",
-		"/store/admin/campaigns",
 		"/store/admin/orders",
 		`/store/admin/orders/${fixtureOrderNumber}`
 	];

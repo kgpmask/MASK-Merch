@@ -2,26 +2,22 @@ import mongoose, { Types } from "mongoose";
 import { connectDatabase } from "@/lib/database";
 import {
 	AuditLog,
-	Campaign,
 	Cart,
 	Counter,
 	Order,
 	Payment,
 	Product,
 	Variant,
-	type CampaignDoc,
 	type ProductDoc,
 	type VariantDoc
 } from "@/models";
-import { calculateTotal, groupCampaignQuantities } from "@/lib/store/pricing";
-import { campaignOutcome } from "@/lib/store/transitions";
+import { calculateTotal } from "@/lib/store/pricing";
 import type { CartInput, OrderStatus } from "@/types/store";
 import { requireBackName } from "@/lib/store/personalization";
 import { formatOrderNumber } from "@/lib/store/order-number";
 
 type LeanVariant = VariantDoc & { _id: Types.ObjectId };
 type LeanProduct = ProductDoc & { _id: Types.ObjectId };
-type LeanCampaign = CampaignDoc & { _id: Types.ObjectId };
 type UserSnapshot = { name: string; email: string; image?: string };
 
 export async function createOrder(
@@ -55,36 +51,25 @@ export async function createOrder(
 	const productIds = [
 		...new Set(variants.map((variant) => variant.productId.toString()))
 	].map((id) => new Types.ObjectId(id));
-	const [products, campaigns] = await Promise.all([
-		Product.find({ _id: { $in: productIds }, active: true }).lean<
+	const [products] = await Promise.all([
+		Product.find({ _id: { $in: productIds }, status: "open" }).lean<
 			LeanProduct[]
-		>(),
-		Campaign.find({
-			productId: { $in: productIds },
-			status: "open",
-			preorderClose: { $gt: new Date() }
-		}).lean<LeanCampaign[]>()
+		>()
 	]);
-	if (
-		products.length !== productIds.length ||
-		campaigns.length !== productIds.length
-	)
-		throw new Error("A campaign is no longer open.");
+	if (products.length !== productIds.length)
+		throw new Error("Product lengths mismatch.");
 	const items = input.map((line) => {
 		const variant = variants.find(
 			(item) => item._id.toString() === line.variantId
 		);
 		if (!variant) throw new Error("Variant unavailable.");
 		const product = products.find((item) => item._id.equals(variant.productId));
-		const campaign = campaigns.find((item) =>
-			item.productId.equals(variant.productId)
-		);
-		if (!product || !campaign) throw new Error("Product campaign unavailable.");
+
+		if (!product) throw new Error("Product unavailable.");
 		return {
 			backName: line.backName,
 			productId: product._id,
 			variantId: variant._id,
-			campaignId: campaign._id,
 			productTitle: product.title,
 			productSlug: product.slug,
 			garmentType: variant.garmentType,
@@ -147,26 +132,11 @@ export async function verifyPayment(
 		await session.withTransaction(async () => {
 			const order = await Order.findOneAndUpdate(
 				{ orderNumber, status: "payment_submitted", paymentStatus: "submitted" },
-				{ $set: { status: "paid_waiting_moq", paymentStatus: "verified" } },
+				{ $set: { status: "confirmed", paymentStatus: "verified" } },
 				{ new: true, session }
 			);
 			if (!order) return;
 			changed = true;
-			const quantities = groupCampaignQuantities(
-				order.items.map((item) => ({
-					campaignId: item.campaignId.toString(),
-					quantity: item.quantity
-				}))
-			);
-			await Promise.all(
-				[...quantities].map(([campaignId, quantity]) =>
-					Campaign.updateOne(
-						{ _id: campaignId, status: "open" },
-						{ $inc: { paidQuantity: quantity } },
-						{ session }
-					)
-				)
-			);
 			await Payment.updateOne(
 				{ orderId: order._id, status: "submitted" },
 				{
@@ -182,7 +152,7 @@ export async function verifyPayment(
 				[
 					{
 						actorEmail,
-						action: "payment_verified",
+						action: "confirmed",
 						entityType: "order",
 						entityId: orderNumber,
 						metadata: { totalPaise: order.totalPaise }
@@ -232,77 +202,6 @@ export async function rejectPayment(
 		})
 	]);
 	return true;
-}
-
-export async function decideCampaign(
-	campaignId: string,
-	actorEmail: string
-): Promise<"MOQ_met" | "MOQ_failed"> {
-	if (!Types.ObjectId.isValid(campaignId)) throw new Error("Invalid campaign.");
-	await connectDatabase();
-	const campaign = await Campaign.findOne({ _id: campaignId, status: "open" });
-	if (!campaign) throw new Error("Campaign is not open.");
-	if (campaign.preorderClose > new Date())
-		throw new Error("Campaign cannot be decided before its preorder deadline.");
-	const outcome = campaignOutcome(campaign.paidQuantity, campaign.moq);
-	const session = await mongoose.startSession();
-	try {
-		await session.withTransaction(async () => {
-			const updated = await Campaign.updateOne(
-				{ _id: campaign._id, status: "open" },
-				{ $set: { status: outcome } },
-				{ session }
-			);
-			if (updated.modifiedCount !== 1) return;
-			const affected = await Order.find(
-				{ "items.campaignId": campaign._id, status: "paid_waiting_moq" },
-				null,
-				{ session }
-			);
-			for (const order of affected) {
-				const campaignIds = [
-					...new Set(order.items.map((item) => item.campaignId.toString()))
-				];
-				const states = await Campaign.find(
-					{ _id: { $in: campaignIds } },
-					{ status: 1 },
-					{ session }
-				);
-				const nextStatus: OrderStatus | null = states.some(
-					(item) => item.status === "MOQ_failed"
-				)
-					? "refund_pending"
-					: states.every((item) => item.status !== "open" && item.status !== "draft")
-						? "confirmed"
-						: null;
-				if (nextStatus)
-					await Order.updateOne(
-						{ _id: order._id, status: "paid_waiting_moq" },
-						{ $set: { status: nextStatus } },
-						{ session }
-					);
-			}
-			await AuditLog.create(
-				[
-					{
-						actorEmail,
-						action: "campaign_decided",
-						entityType: "campaign",
-						entityId: campaignId,
-						metadata: {
-							outcome,
-							paidQuantity: campaign.paidQuantity,
-							moq: campaign.moq
-						}
-					}
-				],
-				{ session }
-			);
-		});
-	} finally {
-		await session.endSession();
-	}
-	return outcome;
 }
 
 export async function recordRefund(

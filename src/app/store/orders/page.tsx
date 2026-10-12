@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { auth, signIn } from "@/auth";
+import { auth, signIn } from "@/lib/auth";
 import { connectDatabase } from "@/lib/database";
 import { formatMoney } from "@/lib/store/config";
 import { Order } from "@/models";

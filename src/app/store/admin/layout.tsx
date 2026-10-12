@@ -13,7 +13,6 @@ export default async function AdminLayout({
 			<nav className={styles.nav}>
 				<Link href="/store/admin">Dashboard</Link>
 				<Link href="/store/admin/products">Products</Link>
-				<Link href="/store/admin/campaigns">Campaigns</Link>
 				<Link href="/store/admin/orders">Orders</Link>
 				<a href="/api/store/admin/export/vendor">Vendor CSV</a>
 				<a href="/api/store/admin/export/pickup">Pickup CSV</a>

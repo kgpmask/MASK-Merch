@@ -31,11 +31,7 @@ export default async function AdminPage(): Promise<React.ReactElement> {
 			count.get("payment_submitted") ?? 0,
 			"status=payment_submitted"
 		],
-		[
-			"Awaiting confirmation",
-			count.get("paid_waiting_moq") ?? 0,
-			"status=paid_waiting_moq"
-		],
+		["Awaiting confirmation", count.get("confirmed") ?? 0, "status=confirmed"],
 		[
 			"Refunds to send",
 			count.get("refund_pending") ?? 0,

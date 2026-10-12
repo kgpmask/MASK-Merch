@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { connectDatabase } from "@/lib/database";
 import { Order, Payment } from "@/models";
-import { requireUser } from "@/lib/store/permissions";
+import { requireUser } from "@/lib/auth";
 import { assertRateLimit } from "@/lib/store/rate-limit";
 import { proofStorage } from "@/lib/store/storage";
 import { isOrderNumber } from "@/lib/store/order-number";

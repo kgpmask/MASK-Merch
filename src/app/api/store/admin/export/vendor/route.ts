@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
-import { requireAdminApi as requireAdmin } from "@/lib/store/permissions";
+import { requireAdminApi as requireAdmin } from "@/lib/auth";
 import { connectDatabase } from "@/lib/database";
-import { Campaign, Order } from "@/models";
+import { Order } from "@/models";
 import { csvCell } from "@/lib/store/admin";
 export async function GET(): Promise<NextResponse> {
 	try {
@@ -10,14 +10,6 @@ export async function GET(): Promise<NextResponse> {
 		const orders = await Order.find({
 			status: { $in: ["confirmed", "ready_for_pickup", "collected"] }
 		}).lean();
-		const campaignIds = [
-			...new Set(
-				orders.flatMap((order) =>
-					order.items.map((item) => item.campaignId.toString())
-				)
-			)
-		];
-		const campaigns = await Campaign.find({ _id: { $in: campaignIds } }).lean();
 		const groups = new Map<
 			string,
 			{
@@ -26,16 +18,12 @@ export async function GET(): Promise<NextResponse> {
 				size: string;
 				quantity: number;
 				sku: string;
-				campaign: string;
 				notes: string;
 				backName: string;
 			}
 		>();
 		for (const order of orders)
 			for (const item of order.items) {
-				const campaign = campaigns.find(
-					(value) => value._id.toString() === item.campaignId.toString()
-				);
 				const key = JSON.stringify([
 					item.productTitle,
 					item.garmentType,
@@ -52,8 +40,7 @@ export async function GET(): Promise<NextResponse> {
 						size: item.size,
 						quantity: item.quantity,
 						sku: item.sku,
-						campaign: campaign?.name ?? item.campaignId.toString(),
-						notes: campaign?.vendorNotes ?? "",
+						notes: "",
 						backName: item.backName ?? ""
 					});
 			}
@@ -64,7 +51,6 @@ export async function GET(): Promise<NextResponse> {
 				"Size",
 				"Quantity",
 				"SKU",
-				"Campaign",
 				"Vendor Notes",
 				"Name on Back"
 			],
@@ -74,7 +60,6 @@ export async function GET(): Promise<NextResponse> {
 				item.size,
 				item.quantity,
 				item.sku,
-				item.campaign,
 				item.notes,
 				item.backName
 			])

@@ -1,11 +1,11 @@
 import { Schema, model, models, type Model, type Types } from "mongoose";
 import {
-	CAMPAIGN_STATUSES,
 	GARMENT_TYPES,
+	PRODUCT_STATUSES,
 	ORDER_STATUSES,
 	PAYMENT_STATUSES,
-	type CampaignStatus,
 	type GarmentType,
+	type ProductStatus,
 	type OrderStatus,
 	type PaymentStatus
 } from "@/types/store";
@@ -28,7 +28,7 @@ export interface ProductDoc {
 	slug: string;
 	artistCredit: string;
 	description: string;
-	active: boolean;
+	status: ProductStatus;
 	images: string[];
 	material?: string;
 	gsm?: number | null;
@@ -44,16 +44,6 @@ export interface VariantDoc {
 	sku: string;
 	active: boolean;
 }
-export interface CampaignDoc {
-	productId: Types.ObjectId;
-	name: string;
-	moq: number;
-	preorderStart: Date;
-	preorderClose: Date;
-	paidQuantity: number;
-	status: CampaignStatus;
-	vendorNotes: string;
-}
 export interface CartDoc {
 	userEmail: string;
 	items: Array<{
@@ -67,7 +57,6 @@ export interface OrderItemSnapshot {
 	backName?: string;
 	productId: Types.ObjectId;
 	variantId: Types.ObjectId;
-	campaignId: Types.ObjectId;
 	productTitle: string;
 	productSlug: string;
 	garmentType: GarmentType;
@@ -155,7 +144,12 @@ const productSchema = new Schema<ProductDoc>(
 		slug: { type: String, required: true, unique: true, index: true },
 		artistCredit: { type: String, default: "Artist credit placeholder" },
 		description: { type: String, required: true },
-		active: { type: Boolean, default: false },
+		status: {
+			type: String,
+			enum: PRODUCT_STATUSES,
+			default: "open",
+			index: true
+		},
 		images: { type: [String], default: [] },
 		material: { type: String, default: "To be confirmed" },
 		gsm: { type: Number, min: 1, default: null },
@@ -193,29 +187,6 @@ variantSchema.index(
 	{ productId: 1, garmentType: 1, size: 1, colour: 1 },
 	{ unique: true }
 );
-const campaignSchema = new Schema<CampaignDoc>(
-	{
-		productId: {
-			type: Schema.Types.ObjectId,
-			ref: "Product",
-			required: true,
-			index: true
-		},
-		name: { type: String, required: true },
-		moq: { type: Number, default: 1, min: 1 },
-		preorderStart: { type: Date, required: true },
-		preorderClose: { type: Date, required: true, index: true },
-		paidQuantity: { type: Number, default: 0, min: 0 },
-		status: {
-			type: String,
-			enum: CAMPAIGN_STATUSES,
-			default: "draft",
-			index: true
-		},
-		vendorNotes: { type: String, default: "" }
-	},
-	{ timestamps: true }
-);
 const cartSchema = new Schema<CartDoc>({
 	userEmail: {
 		type: String,
@@ -238,7 +209,6 @@ const orderItemSchema = new Schema<OrderItemSnapshot>(
 		backName: { type: String, default: "", maxlength: 60 },
 		productId: { type: Schema.Types.ObjectId, required: true },
 		variantId: { type: Schema.Types.ObjectId, required: true },
-		campaignId: { type: Schema.Types.ObjectId, required: true },
 		productTitle: String,
 		productSlug: String,
 		garmentType: { type: String, enum: GARMENT_TYPES },
@@ -333,7 +303,6 @@ export const User = existing("User", userSchema);
 export const Admin = existing("Admin", adminSchema);
 export const Product = existing("Product", productSchema);
 export const Variant = existing("Variant", variantSchema);
-export const Campaign = existing("Campaign", campaignSchema);
 export const Cart = existing("Cart", cartSchema);
 export const Order = existing("Order", orderSchema);
 export const Payment = existing("Payment", paymentSchema);
